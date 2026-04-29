@@ -1,0 +1,109 @@
+@model IEnumerable<ProyMvcProyectoOnline205.Models.Notificacion>
+
+@{
+    ViewData["Title"]        = "Notificaciones";
+    Layout                   = "_LayoutAdmin";
+    ViewData["PageTitle"]    = "Notificaciones del sistema";
+    ViewData["PageSubtitle"] = "Avisos generados por el sistema.";
+    ViewData["PageCrumbs"]   = new[] { "Operación", "Notificaciones" };
+}
+
+<partial name="Admin/_PageHeader" />
+
+<div class="admin-table-wrap">
+    <div class="admin-table-toolbar">
+        <div class="admin-table-toolbar__search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="search" id="notiSearch" placeholder="Buscar mensaje…" />
+        </div>
+        <span class="app-pill">@Model.Count() registros</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table" id="notiTable">
+            <thead>
+                <tr>
+                    <th style="width:60px">ID</th>
+                    <th>Mensaje</th>
+                    <th style="width:160px">Fecha</th>
+                    <th style="width:120px">Estado</th>
+                    <th class="col-actions">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <partial name="Components/_EmptyRow" model='new {
+                    colspan = 5,
+                    title   = "Sin notificaciones",
+                    text    = "No hay notificaciones registradas en el sistema."
+                }' />
+            }
+            else
+            {
+                foreach (var n in Model)
+                {
+                    <tr>
+                        <td class="col-id">#@n.IdNotificacion</td>
+                        <td>
+                            <div style="max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                @n.Mensaje
+                            </div>
+                        </td>
+                        <td class="u-text-muted">
+                            @(n.FechaCreacion.HasValue ? n.FechaCreacion.Value.ToString("dd/MM/yyyy HH:mm") : "—")
+                        </td>
+                        <td>
+                            <partial name="Components/_StatusPill" model='new {
+                                variant  = n.EsLeido == true ? "success" : "warning",
+                                text     = n.EsLeido == true ? "Leída" : "Pendiente"
+                            }' />
+                        </td>
+                        <td class="col-actions">
+                            <div class="admin-row-actions">
+                                <a class="app-btn app-btn--ghost"
+                                   asp-action="DetailsNotificacion" asp-route-id="@n.IdNotificacion"
+                                   title="Ver detalle">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </a>
+                                @if (n.EsLeido != true)
+                                {
+                                    <a class="app-btn app-btn--success"
+                                       asp-action="MarcarLeida" asp-route-id="@n.IdNotificacion"
+                                       title="Marcar como leída">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('notiSearch');
+            var table = document.getElementById('notiTable');
+            if (!input || !table) return;
+            input.addEventListener('input', App.debounce(function () {
+                var q = input.value.trim().toLowerCase();
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    if (tr.querySelector('.app-empty')) return;
+                    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+                });
+            }, 150));
+        })();
+    </script>
+}

@@ -1,0 +1,35 @@
+﻿@model ProyMvcProyectoOnline205.Models.Ticket
+
+<h2>Detalle del Ticket</h2>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">ID</dt>
+    <dd class="col-sm-9">@Model.IdTicket</dd>
+
+    <dt class="col-sm-3">Asunto</dt>
+    <dd class="col-sm-9">@Model.Asunto</dd>
+
+    <dt class="col-sm-3">Descripción</dt>
+    <dd class="col-sm-9">@Model.Descripcion</dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
+
+    <dt class="col-sm-3">Respuesta Admin</dt>
+    <dd class="col-sm-9">@Model.RespuestaAdmin</dd>
+
+    <dt class="col-sm-3">Cliente</dt>
+    <dd class="col-sm-9">@Model.IdClienteOrigen</dd>
+
+    <dt class="col-sm-3">Usuario Gestión</dt>
+    <dd class="col-sm-9">@Model.IdUsuarioGestion</dd>
+
+    <dt class="col-sm-3">Fecha</dt>
+    <dd class="col-sm-9">@Model.FechaCreacion</dd>
+</dl>
+
+<a asp-action="IndexTicket" class="btn btn-secondary">
+    Volver
+</a>

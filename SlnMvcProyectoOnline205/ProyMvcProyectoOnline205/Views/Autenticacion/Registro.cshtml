@@ -1,0 +1,352 @@
+@model ProyMvcProyectoOnline205.Models.Cliente
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Crear cuenta";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crear cuenta — NexusShop</title>
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@@300;400;500;600;700;800&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: #0f172a;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── PANEL IZQUIERDO ── */
+        .brand-panel {
+            flex: 1;
+            background: linear-gradient(145deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 3rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            background: rgba(99,102,241,.15);
+            top: -150px; right: -150px;
+        }
+        .brand-panel::after {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: rgba(99,102,241,.1);
+            bottom: -80px; left: -80px;
+        }
+        .brand-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -.04em;
+            margin-bottom: 2.5rem;
+            position: relative; z-index: 1;
+        }
+        .brand-logo span { color: #a5b4fc; }
+        .brand-tagline {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+            letter-spacing: -.03em;
+            margin-bottom: 1rem;
+            position: relative; z-index: 1;
+        }
+        .brand-sub {
+            color: #a5b4fc;
+            font-size: .95rem;
+            line-height: 1.7;
+            max-width: 340px;
+            position: relative; z-index: 1;
+        }
+        .brand-steps {
+            margin-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+            position: relative; z-index: 1;
+        }
+        .brand-step {
+            display: flex;
+            align-items: flex-start;
+            gap: .9rem;
+        }
+        .step-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.15);
+            border: 1.5px solid rgba(255,255,255,.25);
+            color: #e0e7ff;
+            font-size: .75rem;
+            font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            margin-top: .1rem;
+        }
+        .step-text { color: #c7d2fe; font-size: .875rem; font-weight: 500; line-height: 1.4; }
+        .step-text small { display: block; color: #818cf8; font-size: .78rem; font-weight: 400; margin-top: .15rem; }
+
+        /* ── PANEL DERECHO ── */
+        .form-panel {
+            width: 520px;
+            flex-shrink: 0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2.5rem 3.5rem;
+            overflow-y: auto;
+        }
+
+        .form-header { margin-bottom: 2rem; }
+        .form-header h1 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -.03em;
+            margin-bottom: .35rem;
+        }
+        .form-header p { color: #64748b; font-size: .875rem; }
+
+        .form-label {
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            color: #475569;
+            margin-bottom: .35rem;
+            display: block;
+        }
+        .form-control {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            padding: .7rem 1rem;
+            font-size: .9rem;
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+            background: #f8fafc;
+            transition: border-color .15s, box-shadow .15s;
+            width: 100%;
+        }
+        .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+            background: #fff;
+            outline: none;
+        }
+        .form-control::placeholder { color: #94a3b8; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+
+        .password-wrap { position: relative; }
+        .password-toggle {
+            position: absolute; right: 1rem; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none; color: #94a3b8;
+            cursor: pointer; padding: 0; display: flex; align-items: center;
+        }
+        .password-toggle:hover { color: #6366f1; }
+
+        .password-hint {
+            font-size: .75rem;
+            color: #94a3b8;
+            margin-top: .35rem;
+        }
+
+        .btn-register {
+            width: 100%;
+            background: #6366f1;
+            border: none;
+            border-radius: 10px;
+            padding: .85rem;
+            font-size: .9375rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: background .2s, transform .1s;
+            font-family: 'Inter', sans-serif;
+            margin-top: .5rem;
+        }
+        .btn-register:hover { background: #4f46e5; }
+        .btn-register:active { transform: scale(.99); }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: .875rem;
+            color: #64748b;
+        }
+        .login-link a {
+            color: #6366f1;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .login-link a:hover { text-decoration: underline; }
+
+        .error-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: .75rem 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            color: #dc2626;
+            font-size: .875rem;
+            font-weight: 500;
+        }
+
+        @@media (max-width: 900px) {
+            .brand-panel { display: none; }
+            .form-panel { width: 100%; padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PANEL IZQUIERDO -->
+    <div class="brand-panel">
+        <div class="brand-logo">Nexus<span>Shop</span></div>
+        <h2 class="brand-tagline">Crea tu cuenta<br />en segundos.</h2>
+        <p class="brand-sub">
+            Unete a nuestra comunidad y empieza a disfrutar de los mejores productos con envio rapido y soporte dedicado.
+        </p>
+        <div class="brand-steps">
+            <div class="brand-step">
+                <span class="step-num">1</span>
+                <div class="step-text">
+                    Completa el formulario
+                    <small>Datos basicos para crear tu perfil</small>
+                </div>
+            </div>
+            <div class="brand-step">
+                <span class="step-num">2</span>
+                <div class="step-text">
+                    Inicia sesion
+                    <small>Accede con tu correo y contrasena</small>
+                </div>
+            </div>
+            <div class="brand-step">
+                <span class="step-num">3</span>
+                <div class="step-text">
+                    Empieza a comprar
+                    <small>Explora el catalogo y realiza tu primer pedido</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL DERECHO -->
+    <div class="form-panel">
+
+        <div class="form-header">
+            <h1>Crear cuenta</h1>
+            <p>Completa los datos para registrarte como cliente</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="error-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                @ViewBag.Error
+            </div>
+        }
+
+        <form asp-action="Registro" method="post">
+
+            <div class="form-row">
+                <div>
+                    <label class="form-label">Nombre</label>
+                    <input asp-for="Nombre"
+                           class="form-control"
+                           placeholder="Carlos"
+                           required />
+                </div>
+                <div>
+                    <label class="form-label">Apellidos</label>
+                    <input asp-for="Apellidos"
+                           class="form-control"
+                           placeholder="Ramirez"
+                           required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Correo electronico</label>
+                <input asp-for="Correo"
+                       type="email"
+                       class="form-control"
+                       placeholder="tu@correo.com"
+                       required
+                       autocomplete="email" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Telefono</label>
+                <input asp-for="Telefono"
+                       type="tel"
+                       class="form-control"
+                       placeholder="987 654 321" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Contrasena</label>
+                <div class="password-wrap">
+                    <input asp-for="PasswordHash"
+                           id="passwordInput"
+                           type="password"
+                           class="form-control"
+                           placeholder="••••••••"
+                           required
+                           autocomplete="new-password"
+                           style="padding-right: 3rem;" />
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                        </svg>
+                    </button>
+                </div>
+                <p class="password-hint">Minimo 6 caracteres</p>
+            </div>
+
+            <button type="submit" class="btn-register">Crear mi cuenta</button>
+
+        </form>
+
+        <div class="login-link">
+            Ya tienes cuenta? <a asp-action="Login">Inicia sesion</a>
+        </div>
+
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+
+</body>
+</html>

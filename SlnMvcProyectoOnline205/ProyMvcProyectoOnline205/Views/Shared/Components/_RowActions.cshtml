@@ -1,0 +1,82 @@
+@*
+    Componente: _RowActions
+    --------------------------------------------------------------
+    Botones compactos por fila: Detalle / Editar / Eliminar.
+    Usa SVG inline (sin emojis ni FontAwesome).
+
+    Uso (todos opcionales):
+        <partial name="Components/_RowActions" model='new {
+            id          = item.IdProducto,
+            controller  = "Producto",
+            detailsAction = "DetailsProducto",
+            editAction    = "EditProducto",
+            deleteAction  = "DeleteProducto",
+            confirmText   = "¿Eliminar el producto " + item.Nombre + "?"
+        }' />
+*@
+
+@model dynamic
+
+@{
+    object id         = null;
+    string controller = null;
+    string detailsAction = null;
+    string editAction    = null;
+    string deleteAction  = null;
+    string confirmText   = "¿Confirmar esta acción?";
+    string idRouteName   = "id";
+
+    try { id            = Model?.id; } catch {}
+    try { controller    = Model?.controller as string; } catch {}
+    try { detailsAction = Model?.detailsAction as string; } catch {}
+    try { editAction    = Model?.editAction as string; } catch {}
+    try { deleteAction  = Model?.deleteAction as string; } catch {}
+    try { var ct = Model?.confirmText as string; if (!string.IsNullOrEmpty(ct)) confirmText = ct; } catch {}
+    try { var rn = Model?.idRouteName as string; if (!string.IsNullOrEmpty(rn)) idRouteName = rn; } catch {}
+}
+
+<div class="admin-row-actions">
+
+    @if (!string.IsNullOrEmpty(detailsAction))
+    {
+        <a class="app-btn app-btn--ghost"
+           asp-controller="@controller" asp-action="@detailsAction"
+           asp-route-id="@id"
+           title="Ver detalle" aria-label="Ver detalle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        </a>
+    }
+
+    @if (!string.IsNullOrEmpty(editAction))
+    {
+        <a class="app-btn app-btn--ghost"
+           asp-controller="@controller" asp-action="@editAction"
+           asp-route-id="@id"
+           title="Editar" aria-label="Editar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+        </a>
+    }
+
+    @if (!string.IsNullOrEmpty(deleteAction))
+    {
+        <a class="app-btn app-btn--danger"
+           asp-controller="@controller" asp-action="@deleteAction"
+           asp-route-id="@id"
+           data-confirm="@confirmText" data-confirm-danger="1"
+           data-confirm-ok="Eliminar" title="Eliminar" aria-label="Eliminar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6"/><path d="M14 11v6"/>
+                <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+            </svg>
+        </a>
+    }
+
+</div>

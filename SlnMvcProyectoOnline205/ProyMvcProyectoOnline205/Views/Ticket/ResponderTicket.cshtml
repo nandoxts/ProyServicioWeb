@@ -1,0 +1,26 @@
+﻿@model ProyMvcProyectoOnline205.Models.Ticket
+
+@{
+    ViewData["Title"] = "Responder Ticket";
+}
+
+<h2>Responder Ticket</h2>
+
+<form asp-action="ResponderTicket" method="post">
+    <input type="hidden" name="IdTicket" value="@Model.IdTicket" />
+    <div class="alert alert-secondary">
+        <strong>Asunto:</strong> @Model.Asunto <br />
+        <strong>Descripción:</strong> @Model.Descripcion
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Respuesta</label>
+<textarea name="Respuesta" class="form-control" required></textarea>
+
+    </div>
+
+
+
+    <button type="submit" class="btn btn-success">Responder</button>
+    <a asp-action="IndexTicket" class="btn btn-secondary">Cancelar</a>
+</form>

@@ -1,0 +1,43 @@
+﻿@model ProyMvcProyectoOnline205.Models.CambiarClaveViewModel
+@{
+    ViewData["Title"] = "Mi perfil";
+    Layout = "_LayoutShop";
+}
+
+<h2>🔐 Cambiar contraseña</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.Error
+    </div>
+}
+
+@if (TempData["mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["mensaje"]
+    </div>
+}
+
+<form asp-action="CambiarClave" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label>Contraseña actual</label>
+        <input asp-for="ClaveActual" type="password" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Nueva contraseña</label>
+        <input asp-for="NuevaClave" type="password" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Confirmar nueva contraseña</label>
+        <input asp-for="ConfirmarClave" type="password" class="form-control" />
+    </div>
+
+    <button class="btn btn-primary">Guardar</button>
+    <a asp-action="Perfil" class="btn btn-secondary">Cancelar</a>
+</form>

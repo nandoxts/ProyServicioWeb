@@ -1,0 +1,35 @@
+﻿@model ProyMvcProyectoOnline205.Models.Producto
+
+<h1>Editar Producto</h1>
+
+<form asp-action="EditProducto" method="post">
+    <input type="hidden" asp-for="IdProducto" />
+
+    <div class="form-group">
+        <label asp-for="Nombre"></label>
+        <input asp-for="Nombre" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Descripcion"></label>
+        <input asp-for="Descripcion" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Precio"></label>
+        <input asp-for="Precio" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Stock"></label>
+        <input asp-for="Stock" class="form-control" />
+    </div>
+
+    @* Campos de control que NO deben cambiar *@
+    <input type="hidden" asp-for="Activo" />
+    <input type="hidden" asp-for="RutaImagen" />
+    <input type="hidden" asp-for="NombreImagen" />
+
+    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
+    <a asp-action="IndexProducto" class="btn btn-secondary mt-3">Cancelar</a>
+</form>

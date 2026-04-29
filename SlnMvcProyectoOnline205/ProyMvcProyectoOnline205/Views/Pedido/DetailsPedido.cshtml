@@ -1,0 +1,178 @@
+@model ProyMvcProyectoOnline205.Models.Ventum
+
+@{
+    var rol = Context.Session.GetInt32("IdRol");
+    bool esAdmin = rol == 1 || rol == 2;
+    Layout = esAdmin ? "_LayoutAdmin" : "_LayoutShop";
+
+    ViewData["Title"]        = $"Pedido #{Model.IdVenta}";
+    ViewData["PageTitle"]    = $"Pedido #{Model.IdVenta}";
+    ViewData["PageSubtitle"] = "Detalle completo de la venta.";
+    ViewData["PageCrumbs"]   = esAdmin
+        ? new[] { "Operación", "Pedidos", $"#{Model.IdVenta}" }
+        : null;
+
+    string EstadoLabel(int? id) => id switch {
+        1 => "Registrado", 2 => "Pagado", 3 => "En preparación",
+        4 => "Enviado",    5 => "Entregado", 6 => "Cancelado", _ => "—"
+    };
+    string EstadoVariant(int? id) => id switch {
+        1 => "info",  2 => "success", 3 => "warning",
+        4 => "brand", 5 => "success", 6 => "danger",  _ => ""
+    };
+}
+
+@if (esAdmin)
+{
+    <partial name="Admin/_PageHeader" />
+}
+else
+{
+    <div class="container" style="padding-top:1.5rem">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
+            <a asp-action="IndexPedido" style="color:var(--app-text-muted);display:inline-flex;align-items:center;gap:.35rem;font-size:.85rem;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Mis pedidos
+            </a>
+            <span style="color:var(--app-border)">/</span>
+            <span style="font-size:.85rem;color:var(--app-text-muted)">Pedido #@Model.IdVenta</span>
+        </div>
+    </div>
+}
+
+<div class="@(esAdmin ? "" : "container")">
+
+    <partial name="Components/_FlashMessage" />
+
+    <!-- ── INFO GENERAL ───────────────────────────────────── -->
+    <div class="app-card" style="margin-bottom:1rem">
+        <div class="app-card__header">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
+                <span>Información del pedido</span>
+                <partial name="Components/_StatusPill" model='new {
+                    variant = EstadoVariant(Model.IdEstadoPedido),
+                    text    = EstadoLabel(Model.IdEstadoPedido)
+                }' />
+            </div>
+        </div>
+        <div class="app-card__body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.25rem">
+                <div>
+                    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--app-text-muted);font-weight:600;margin-bottom:.25rem">Fecha</div>
+                    <div style="font-weight:600">@Model.FechaVenta?.ToString("dd/MM/yyyy HH:mm")</div>
+                </div>
+                <div>
+                    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--app-text-muted);font-weight:600;margin-bottom:.25rem">Total pagado</div>
+                    <div style="font-size:1.4rem;font-weight:800;color:var(--app-success)">S/ @Model.MontoTotal?.ToString("N2")</div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Contacto))
+                {
+                    <div>
+                        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--app-text-muted);font-weight:600;margin-bottom:.25rem">Contacto</div>
+                        <div>@Model.Contacto</div>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Direccion))
+                {
+                    <div>
+                        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--app-text-muted);font-weight:600;margin-bottom:.25rem">Dirección</div>
+                        <div>@Model.Direccion</div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="app-card__footer">
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                <a asp-action="DescargarPedido" asp-route-id="@Model.IdVenta" class="app-btn app-btn--ghost">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Descargar pedido (PDF)
+                </a>
+                <a asp-action="DescargarProductosPedido" asp-route-id="@Model.IdVenta" class="app-btn app-btn--ghost">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m7.5 4.27 9 5.15"/><path d="M21 8 12 13 3 8"/><path d="M3 8v8l9 5 9-5V8"/>
+                    </svg>
+                    Descargar productos (PDF)
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PRODUCTOS ──────────────────────────────────────── -->
+    <div class="app-card" style="margin-bottom:1rem">
+        <div class="app-card__header">Productos del pedido</div>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th style="text-align:center;width:80px">Cant.</th>
+                        <th style="text-align:right;width:110px">Precio</th>
+                        <th style="text-align:right;width:120px">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.DetalleVenta == null || !Model.DetalleVenta.Any())
+                {
+                    <partial name="Components/_EmptyRow" model='new {
+                        colspan = 4,
+                        title   = "Sin productos",
+                        text    = "No se encontraron productos en este pedido."
+                    }' />
+                }
+                else
+                {
+                    foreach (var d in Model.DetalleVenta)
+                    {
+                        var subtotal = d.Cantidad * (d.IdProductoNavigation?.Precio ?? 0);
+                        <tr>
+                            <td style="font-weight:600">@(d.IdProductoNavigation?.Nombre ?? "—")</td>
+                            <td style="text-align:center">@d.Cantidad</td>
+                            <td style="text-align:right" class="u-text-muted">S/ @d.IdProductoNavigation?.Precio?.ToString("N2")</td>
+                            <td style="text-align:right;font-weight:700">S/ @subtotal.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── CAMBIAR ESTADO (solo admin) ───────────────────── -->
+    @if (esAdmin)
+    {
+        <div class="app-card" style="margin-bottom:1rem">
+            <div class="app-card__header">Actualizar estado del pedido</div>
+            <div class="app-card__body">
+                <form asp-action="CambiarEstadoPedido" method="post" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="idVenta" value="@Model.IdVenta" />
+                    <select name="idEstado" class="form-select" style="max-width:220px">
+                        <option value="1" @(Model.IdEstadoPedido == 1 ? "selected" : "")>Registrado</option>
+                        <option value="2" @(Model.IdEstadoPedido == 2 ? "selected" : "")>Pagado</option>
+                        <option value="3" @(Model.IdEstadoPedido == 3 ? "selected" : "")>En preparación</option>
+                        <option value="4" @(Model.IdEstadoPedido == 4 ? "selected" : "")>Enviado</option>
+                        <option value="5" @(Model.IdEstadoPedido == 5 ? "selected" : "")>Entregado</option>
+                        <option value="6" @(Model.IdEstadoPedido == 6 ? "selected" : "")>Cancelado</option>
+                    </select>
+                    <button type="submit" class="app-btn app-btn--primary">Guardar estado</button>
+                </form>
+            </div>
+        </div>
+    }
+
+    <!-- ── VOLVER ─────────────────────────────────────────── -->
+    <div>
+        <a asp-action="IndexPedido" class="app-btn app-btn--ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            @(esAdmin ? "Volver a pedidos" : "Volver a mis pedidos")
+        </a>
+    </div>
+
+</div>

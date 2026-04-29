@@ -1,0 +1,111 @@
+@model IEnumerable<ProyMvcProyectoOnline205.Models.Cliente>
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"]        = "Clientes";
+    ViewData["PageTitle"]    = "Gestión de clientes";
+    ViewData["PageSubtitle"] = "Clientes registrados en la tienda.";
+    ViewData["PageCrumbs"]   = new[] { "Personas", "Clientes" };
+
+    ViewData["PageActions"] = (Func<object, Microsoft.AspNetCore.Html.IHtmlContent>)(@<text>
+        <a asp-action="CreateCliente" class="app-btn app-btn--primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Nuevo cliente
+        </a>
+    </text>);
+}
+
+<partial name="Admin/_PageHeader" />
+
+<div class="admin-table-wrap">
+    <div class="admin-table-toolbar">
+        <div class="admin-table-toolbar__search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="search" id="clientesSearch" placeholder="Buscar por nombre o correo…" />
+        </div>
+        <span class="app-pill">@Model.Count() registros</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table" id="clientesTable">
+            <thead>
+                <tr>
+                    <th style="width:60px">ID</th>
+                    <th>Cliente</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Registro</th>
+                    <th class="col-actions">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <partial name="Components/_EmptyRow" model='new {
+                    colspan = 7,
+                    title   = "Sin clientes",
+                    text    = "Aún no se han registrado clientes."
+                }' />
+            }
+            else
+            {
+                foreach (var item in Model)
+                {
+                    var iniciales = string.Concat(
+                        ((item.Nombre ?? "?") + " " + (item.Apellidos ?? "?"))
+                          .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                          .Take(2).Select(p => p[0])).ToUpperInvariant();
+
+                    <tr>
+                        <td class="col-id">#@item.IdCliente</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:.6rem">
+                                <span class="admin-topbar__avatar" style="width:32px;height:32px;font-size:.72rem">@iniciales</span>
+                                <div style="font-weight:600">@item.Nombre @item.Apellidos</div>
+                            </div>
+                        </td>
+                        <td class="u-text-muted">@item.Correo</td>
+                        <td class="u-text-muted">@(item.Telefono ?? "—")</td>
+                        <td>
+                            <partial name="Components/_StatusPill" model='new { active = item.Activo }' />
+                        </td>
+                        <td class="u-text-muted">@item.FechaRegistro?.ToString("dd/MM/yyyy")</td>
+                        <td class="col-actions">
+                            <partial name="Components/_RowActions" model='new {
+                                id            = item.IdCliente,
+                                controller    = "Cliente",
+                                detailsAction = "DetailsCliente",
+                                editAction    = "EditCliente",
+                                deleteAction  = "DeleteCliente",
+                                confirmText   = "¿Eliminar al cliente " + item.Nombre + " " + item.Apellidos + "?"
+                            }' />
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('clientesSearch');
+            var table = document.getElementById('clientesTable');
+            if (!input || !table) return;
+            input.addEventListener('input', App.debounce(function () {
+                var q = input.value.trim().toLowerCase();
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    if (tr.querySelector('.app-empty')) return;
+                    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+                });
+            }, 150));
+        })();
+    </script>
+}

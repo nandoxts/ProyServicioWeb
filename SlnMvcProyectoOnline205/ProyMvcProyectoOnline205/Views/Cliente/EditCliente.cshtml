@@ -1,0 +1,71 @@
+﻿@model ProyMvcProyectoOnline205.Models.Cliente
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Editar Cliente";
+}
+
+<div class="container-fluid px-4">
+
+    <!-- TÍTULO -->
+    <h2 class="mt-4 mb-4 text-dark">
+        Editar Cliente
+    </h2>
+
+    <!-- CARD -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form asp-action="EditCliente" method="post">
+
+                <input type="hidden" asp-for="IdCliente" />
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Nombre" class="form-label fw-semibold"></label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Apellidos" class="form-label fw-semibold"></label>
+                        <input asp-for="Apellidos" class="form-control" />
+                        <span asp-validation-for="Apellidos" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Correo" class="form-label fw-semibold"></label>
+                        <input asp-for="Correo" class="form-control" />
+                        <span asp-validation-for="Correo" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Telefono" class="form-label fw-semibold"></label>
+                        <input asp-for="Telefono" class="form-control" />
+                        <span asp-validation-for="Telefono" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                <!-- BOTONES -->
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a asp-action="IndexCliente" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-dark">
+                        Guardar cambios
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

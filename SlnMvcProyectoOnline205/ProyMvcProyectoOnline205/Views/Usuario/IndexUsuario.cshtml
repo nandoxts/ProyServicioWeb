@@ -1,0 +1,129 @@
+@model IEnumerable<ProyMvcProyectoOnline205.Models.Usuario>
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"]        = "Usuarios";
+    ViewData["PageTitle"]    = "Gestión de usuarios";
+    ViewData["PageSubtitle"] = "Administradores y vendedores con acceso al panel.";
+    ViewData["PageCrumbs"]   = new[] { "Personas", "Usuarios" };
+
+    ViewData["PageActions"] = (Func<object, Microsoft.AspNetCore.Html.IHtmlContent>)(@<text>
+        <a asp-action="CreateUsuario" class="app-btn app-btn--primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+            </svg>
+            Nuevo usuario
+        </a>
+    </text>);
+
+    string RolLabel(int? r) => r switch { 1 => "Administrador", 2 => "Vendedor", _ => "—" };
+}
+
+<partial name="Admin/_PageHeader" />
+
+<div class="admin-table-wrap">
+    <div class="admin-table-toolbar">
+        <div class="admin-table-toolbar__search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="search" id="usuariosSearch" placeholder="Buscar por nombre o correo…" />
+        </div>
+        <span class="app-pill">@Model.Count() registros</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table" id="usuariosTable">
+            <thead>
+                <tr>
+                    <th style="width:60px">ID</th>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Restablecer</th>
+                    <th>Estado</th>
+                    <th>Registro</th>
+                    <th class="col-actions">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <partial name="Components/_EmptyRow" model='new {
+                    colspan = 8,
+                    title   = "Sin usuarios",
+                    text    = "Crea el primer usuario para comenzar."
+                }' />
+            }
+            else
+            {
+                foreach (var item in Model)
+                {
+                    var iniciales = string.Concat(
+                        ((item.Nombres ?? "?") + " " + (item.Apellidos ?? "?"))
+                          .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                          .Take(2).Select(p => p[0])).ToUpperInvariant();
+
+                    <tr>
+                        <td class="col-id">#@item.IdUsuario</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:.6rem">
+                                <span class="admin-topbar__avatar" style="width:32px;height:32px;font-size:.72rem">@iniciales</span>
+                                <div>
+                                    <div style="font-weight:600">@item.Nombres @item.Apellidos</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="u-text-muted">@item.Correo</td>
+                        <td>
+                            <span class="app-pill app-pill--brand">@RolLabel(item.IdRol)</span>
+                        </td>
+                        <td>
+                            <partial name="Components/_StatusPill" model='new {
+                                active   = item.Reestablecer,
+                                variant  = item.Reestablecer == true ? "warning" : null,
+                                labelOn  = "Sí",
+                                labelOff = "No"
+                            }' />
+                        </td>
+                        <td>
+                            <partial name="Components/_StatusPill" model='new { active = item.Activo }' />
+                        </td>
+                        <td class="u-text-muted">@item.FechaRegistro?.ToString("dd/MM/yyyy")</td>
+                        <td class="col-actions">
+                            <partial name="Components/_RowActions" model='new {
+                                id            = item.IdUsuario,
+                                controller    = "Usuario",
+                                detailsAction = "DetailsUsuario",
+                                editAction    = "EditUsuario",
+                                deleteAction  = "DeleteUsuario",
+                                confirmText   = "¿Eliminar al usuario " + item.Nombres + " " + item.Apellidos + "?"
+                            }' />
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('usuariosSearch');
+            var table = document.getElementById('usuariosTable');
+            if (!input || !table) return;
+            var filter = App.debounce(function () {
+                var q = input.value.trim().toLowerCase();
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    if (tr.querySelector('.app-empty')) return;
+                    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+                });
+            }, 150);
+            input.addEventListener('input', filter);
+        })();
+    </script>
+}

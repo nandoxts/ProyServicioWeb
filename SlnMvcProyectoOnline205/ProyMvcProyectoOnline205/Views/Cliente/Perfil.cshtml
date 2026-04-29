@@ -1,0 +1,54 @@
+﻿@model ProyMvcProyectoOnline205.Models.Cliente
+
+@{
+    ViewData["Title"] = "Mi perfil";
+    Layout = "_LayoutShop";
+}
+
+<div class="container mt-4">
+
+    <div class="row">
+        <!-- COLUMNA PERFIL -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <span class="fs-1">👤</span>
+                    </div>
+
+                    <h5 class="fw-bold">@Model.Nombre @Model.Apellidos</h5>
+                    <p class="text-muted">@Model.Correo</p>
+
+                    <span class="badge bg-success">Cliente activo</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMNA DATOS -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">📋 Mis datos</h5>
+                </div>
+
+                <div class="card-body">
+                    <dl class="row">
+                        <p><strong>Nombre:</strong> @Model.Nombre</p>
+                        <p><strong>Apellidos:</strong> @Model.Apellidos</p>
+                        <p><strong>Correo:</strong> @Model.Correo</p>
+                        <p><strong>Teléfono:</strong> @Model.Telefono</p>
+                    </dl>
+
+                    <div class="text-end">
+                        <a asp-controller="Cliente"
+                           asp-action="EditarPerfil"
+                           class="btn btn-warning">
+                            ✏️ Editar perfil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

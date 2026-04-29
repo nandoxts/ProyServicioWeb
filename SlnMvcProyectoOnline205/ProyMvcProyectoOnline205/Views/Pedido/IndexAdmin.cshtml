@@ -1,0 +1,114 @@
+@model List<ProyMvcProyectoOnline205.Models.Ventum>
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"]        = "Pedidos";
+    ViewData["PageTitle"]    = "Pedidos registrados";
+    ViewData["PageSubtitle"] = "Todas las ventas del sistema.";
+    ViewData["PageCrumbs"]   = new[] { "Operación", "Pedidos" };
+
+    ViewData["PageActions"] = (Func<object, Microsoft.AspNetCore.Html.IHtmlContent>)(@<text>
+        <a asp-action="DescargarTodosPedidos" class="app-btn app-btn--ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Exportar PDF
+        </a>
+    </text>);
+
+    string EstadoLabel(int? id) => id switch {
+        1 => "Registrado", 2 => "Pagado", 3 => "En preparación",
+        4 => "Enviado",    5 => "Entregado", 6 => "Cancelado", _ => "—"
+    };
+    string EstadoVariant(int? id) => id switch {
+        1 => "info",    2 => "success", 3 => "warning",
+        4 => "brand",   5 => "success", 6 => "danger",  _ => ""
+    };
+}
+
+<partial name="Admin/_PageHeader" />
+
+<div class="admin-table-wrap">
+    <div class="admin-table-toolbar">
+        <div class="admin-table-toolbar__search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="search" id="pedidosSearch" placeholder="Buscar por ID o cliente…" />
+        </div>
+        <span class="app-pill">@Model.Count registros</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table" id="pedidosTable">
+            <thead>
+                <tr>
+                    <th style="width:80px">Pedido</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th class="col-money">Total</th>
+                    <th>Estado</th>
+                    <th class="col-actions">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <partial name="Components/_EmptyRow" model='new {
+                    colspan = 6,
+                    title   = "Sin pedidos",
+                    text    = "Aún no se han registrado pedidos."
+                }' />
+            }
+            else
+            {
+                foreach (var p in Model)
+                {
+                    <tr>
+                        <td class="col-id">#@p.IdVenta</td>
+                        <td class="u-text-muted">Cliente #@p.IdCliente</td>
+                        <td class="u-text-muted">@p.FechaVenta?.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="col-money">S/ @p.MontoTotal?.ToString("N2")</td>
+                        <td>
+                            <partial name="Components/_StatusPill" model='new {
+                                variant = EstadoVariant(p.IdEstadoPedido),
+                                text    = EstadoLabel(p.IdEstadoPedido)
+                            }' />
+                        </td>
+                        <td class="col-actions">
+                            <div class="admin-row-actions">
+                                <a class="app-btn app-btn--ghost"
+                                   asp-action="DetailsPedido" asp-route-id="@p.IdVenta"
+                                   title="Ver detalle">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('pedidosSearch');
+            var table = document.getElementById('pedidosTable');
+            if (!input || !table) return;
+            input.addEventListener('input', App.debounce(function () {
+                var q = input.value.trim().toLowerCase();
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    if (tr.querySelector('.app-empty')) return;
+                    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+                });
+            }, 150));
+        })();
+    </script>
+}

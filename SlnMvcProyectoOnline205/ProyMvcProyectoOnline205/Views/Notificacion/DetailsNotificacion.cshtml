@@ -1,0 +1,62 @@
+﻿@model ProyMvcProyectoOnline205.Models.Notificacion
+
+@{
+    ViewData["Title"] = "Detalle de Notificación";
+    Layout = "_LayoutAdmin"; // o _LayoutShop si es cliente
+}
+
+<div class="container-fluid mt-4">
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                📄 Detalle de Notificación
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <dl class="row mb-0">
+                <dt class="col-md-3 text-muted">ID</dt>
+                <dd class="col-md-9 fw-semibold">
+                    @Model.IdNotificacion
+                </dd>
+
+                <dt class="col-md-3 text-muted">Mensaje</dt>
+                <dd class="col-md-9">
+                    @Model.Mensaje
+                </dd>
+
+                <dt class="col-md-3 text-muted">Estado</dt>
+                <dd class="col-md-9">
+                    @if (Model.EsLeido == true)
+                    {
+                        <span class="badge bg-success">
+                            Leída
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+                            No leída
+                        </span>
+                    }
+                </dd>
+
+                <dt class="col-md-3 text-muted">Fecha</dt>
+                <dd class="col-md-9">
+                    @Model.FechaCreacion?.ToString("dd/MM/yyyy HH:mm")
+                </dd>
+            </dl>
+
+        </div>
+
+        <div class="card-footer text-end bg-white">
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                ⬅ Volver
+            </a>
+        </div>
+    </div>
+
+</div>

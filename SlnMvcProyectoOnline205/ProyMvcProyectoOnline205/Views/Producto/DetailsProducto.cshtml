@@ -1,0 +1,41 @@
+﻿@model ProyMvcProyectoOnline205.Models.Producto
+
+@{
+    ViewData["Title"] = "Detalles del Producto";
+}
+
+<h1>Detalles del Producto</h1>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">ID</dt>
+    <dd class="col-sm-9">@Model.IdProducto</dd>
+
+    <dt class="col-sm-3">Nombre</dt>
+    <dd class="col-sm-9">@Model.Nombre</dd>
+
+    <dt class="col-sm-3">Descripción</dt>
+    <dd class="col-sm-9">@Model.Descripcion</dd>
+
+    <dt class="col-sm-3">Marca</dt>
+    <dd class="col-sm-9">@Model.IdMarca</dd>
+
+    <dt class="col-sm-3">Categoría</dt>
+    <dd class="col-sm-9">@Model.IdCategoria</dd>
+
+    <dt class="col-sm-3">Precio</dt>
+    <dd class="col-sm-9">@Model.Precio</dd>
+
+    <dt class="col-sm-3">Stock</dt>
+    <dd class="col-sm-9">@Model.Stock</dd>
+
+    <dt class="col-sm-3">Activo</dt>
+    <dd class="col-sm-9">@Model.Activo</dd>
+
+    <dt class="col-sm-3">Fecha Registro</dt>
+    <dd class="col-sm-9">@Model.FechaRegistro</dd>
+</dl>
+
+<a asp-action="EditProducto" asp-route-id="@Model.IdProducto" class="btn btn-warning">Editar</a>
+<a asp-action="IndexProducto" class="btn btn-secondary">Volver</a>

@@ -1,0 +1,39 @@
+@*
+    Componente: _EmptyRow
+    --------------------------------------------------------------
+    Fila de tabla "vacía" cuando no hay registros que mostrar.
+
+    Uso:
+        <partial name="Components/_EmptyRow" model='new {
+            colspan = 8,
+            title   = "Sin productos",
+            text    = "Aún no se han registrado productos."
+        }' />
+*@
+
+@model dynamic
+
+@{
+    int    colspan = 1;
+    string title   = "Sin registros";
+    string text    = "No hay datos para mostrar.";
+
+    try { colspan = (int)(Model?.colspan ?? 1); } catch {}
+    try { var t = Model?.title as string; if (!string.IsNullOrEmpty(t)) title = t; } catch {}
+    try { var x = Model?.text  as string; if (!string.IsNullOrEmpty(x)) text  = x; } catch {}
+}
+
+<tr>
+    <td colspan="@colspan">
+        <div class="app-empty">
+            <div class="app-empty__icon" aria-hidden="true">
+                <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M3 9h18"/><path d="M9 21V9"/>
+                </svg>
+            </div>
+            <div class="app-empty__title">@title</div>
+            <div class="app-empty__text">@text</div>
+        </div>
+    </td>
+</tr>

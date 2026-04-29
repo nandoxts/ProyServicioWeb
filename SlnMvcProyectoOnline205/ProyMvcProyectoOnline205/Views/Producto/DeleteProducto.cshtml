@@ -1,0 +1,22 @@
+﻿@model ProyMvcProyectoOnline205.Models.Producto
+
+<h1 class="text-danger">Eliminar Producto</h1>
+
+<p>¿Seguro que deseas desactivar este producto?</p>
+
+<dl class="row">
+    <dt class="col-sm-3">Nombre</dt>
+    <dd class="col-sm-9">@Model.Nombre</dd>
+
+    <dt class="col-sm-3">Precio</dt>
+    <dd class="col-sm-9">@Model.Precio</dd>
+
+    <dt class="col-sm-3">Stock</dt>
+    <dd class="col-sm-9">@Model.Stock</dd>
+</dl>
+
+<form asp-action="DeleteProducto" method="post">
+    <input type="hidden" asp-for="IdProducto" />
+    <button type="submit" class="btn btn-danger">Confirmar</button>
+    <a asp-action="IndexProducto" class="btn btn-secondary">Cancelar</a>
+</form>

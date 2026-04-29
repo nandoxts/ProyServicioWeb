@@ -1,0 +1,205 @@
+@model IEnumerable<ProyMvcProyectoOnline205.Models.Producto>
+
+@{
+    Layout = "_LayoutShop";
+    ViewData["Title"] = "Catalogo";
+
+    int? categoriaSeleccionada = Context.Request.Query.ContainsKey("idCategoria")
+        ? int.Parse(Context.Request.Query["idCategoria"]!)
+        : (int?)null;
+
+    int? marcaSeleccionada = Context.Request.Query.ContainsKey("idMarca")
+        ? int.Parse(Context.Request.Query["idMarca"]!)
+        : (int?)null;
+
+    string textoBusqueda = Context.Request.Query.ContainsKey("q")
+        ? Context.Request.Query["q"].ToString()
+        : "";
+
+    int totalProductos = Model.Count();
+
+    string categoriaLabel = "Todos los productos";
+    if (categoriaSeleccionada != null && ViewBag.Categorias != null)
+    {
+        foreach (var c in ViewBag.Categorias)
+        {
+            if (c.IdCategoria == categoriaSeleccionada)
+            {
+                categoriaLabel = c.Descripcion;
+                break;
+            }
+        }
+    }
+}
+
+<!-- ════════ HERO SEARCH ════════ -->
+<section class="hero-search">
+    <div class="container">
+        <h1>Encuentra lo que buscas</h1>
+        <p>Explora nuestro catalogo y descubre los mejores productos al mejor precio.</p>
+
+        <form method="get" asp-action="Index">
+            @if (categoriaSeleccionada != null)
+            {
+                <input type="hidden" name="idCategoria" value="@categoriaSeleccionada" />
+            }
+            @if (marcaSeleccionada != null)
+            {
+                <input type="hidden" name="idMarca" value="@marcaSeleccionada" />
+            }
+            <div class="search-group">
+                <input type="text"
+                       name="q"
+                       placeholder="Buscar productos, marcas, categorias..."
+                       value="@textoBusqueda"
+                       autocomplete="off" />
+                <button type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
+                    </svg>
+                    Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- ════════ MAIN CONTENT ════════ -->
+<div class="container py-4">
+    <div class="row g-4">
+
+        <!-- ════ SIDEBAR ════ -->
+        <aside class="col-lg-2 col-md-3">
+            <div class="filter-sidebar">
+
+                <p class="filter-section-title">Categorias</p>
+                <ul class="filter-list">
+                    <li>
+                        <a asp-action="Index"
+                           asp-route-idMarca="@marcaSeleccionada"
+                           class="@(categoriaSeleccionada == null ? "active" : "")">
+                            Todas
+                        </a>
+                    </li>
+                    @foreach (var c in ViewBag.Categorias)
+                    {
+                        <li>
+                            <a asp-action="Index"
+                               asp-route-idCategoria="@c.IdCategoria"
+                               asp-route-idMarca="@marcaSeleccionada"
+                               class="@(categoriaSeleccionada == c.IdCategoria ? "active" : "")">
+                                @c.Descripcion
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+                <hr class="filter-divider" />
+
+                <p class="filter-section-title">Marcas</p>
+                <ul class="filter-list">
+                    <li>
+                        <a asp-action="Index"
+                           asp-route-idCategoria="@categoriaSeleccionada"
+                           class="@(marcaSeleccionada == null ? "active" : "")">
+                            Todas
+                        </a>
+                    </li>
+                    @foreach (var m in ViewBag.Marcas)
+                    {
+                        <li>
+                            <a asp-action="Index"
+                               asp-route-idMarca="@m.IdMarca"
+                               asp-route-idCategoria="@categoriaSeleccionada"
+                               class="@(marcaSeleccionada == m.IdMarca ? "active" : "")">
+                                @m.Descripcion
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+                @if (categoriaSeleccionada != null || marcaSeleccionada != null || !string.IsNullOrEmpty(textoBusqueda))
+                {
+                    <hr class="filter-divider" />
+                    <a asp-action="Index" class="clear-filters-btn">Limpiar filtros</a>
+                }
+            </div>
+        </aside>
+
+        <!-- ════ PRODUCTOS ════ -->
+        <section class="col-lg-10 col-md-9">
+
+            <div class="section-header">
+                <h2>@categoriaLabel</h2>
+                <span class="count-pill">@totalProductos producto@(totalProductos != 1 ? "s" : "")</span>
+                @if (!string.IsNullOrEmpty(textoBusqueda))
+                {
+                    <span style="font-size:.82rem; color:var(--text-muted)">
+                        para &ldquo;@textoBusqueda&rdquo;
+                    </span>
+                }
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                    </svg>
+                    <h3>Sin resultados</h3>
+                    <p>No encontramos productos con los criterios seleccionados.<br />Intenta con otra busqueda o elimina los filtros.</p>
+                    <a asp-action="Index" class="btn-buy mt-3" style="display:inline-flex; width:auto;">
+                        Ver todos los productos
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="product-grid">
+                    @foreach (var p in Model)
+                    {
+                        <div class="product-card">
+
+                            @if (p.IdCategoriaNavigation != null)
+                            {
+                                <span class="product-badge">@p.IdCategoriaNavigation.Descripcion</span>
+                            }
+
+                            <div class="product-card-img-wrap">
+                                <img src="@($"{p.RutaImagen}{p.NombreImagen}")"
+                                     alt="@p.Nombre"
+                                     loading="lazy" />
+                            </div>
+
+                            <div class="product-card-body">
+                                @if (p.IdMarcaNavigation != null)
+                                {
+                                    <p class="product-category-tag">@p.IdMarcaNavigation.Descripcion</p>
+                                }
+                                <h3 class="product-name">@p.Nombre</h3>
+                                <p class="product-desc">@p.Descripcion</p>
+                                <div class="product-price">
+                                    <span>S/</span> @(p.Precio?.ToString("N2") ?? "0.00")
+                                </div>
+                            </div>
+
+                            <div class="product-card-footer">
+                                <a asp-controller="Carrito"
+                                   asp-action="Agregar"
+                                   asp-route-id="@p.IdProducto"
+                                   class="btn-buy">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5ZM5 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm7 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/>
+                                    </svg>
+                                    Agregar al carrito
+                                </a>
+                            </div>
+
+                        </div>
+                    }
+                </div>
+            }
+
+        </section>
+    </div>
+</div>

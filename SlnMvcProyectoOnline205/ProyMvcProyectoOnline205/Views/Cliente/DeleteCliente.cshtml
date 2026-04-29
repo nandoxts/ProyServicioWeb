@@ -1,0 +1,52 @@
+﻿@model ProyMvcProyectoOnline205.Models.Cliente
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Eliminar Cliente";
+}
+
+<div class="container-fluid px-4">
+
+    <h2 class="mt-4 mb-3 text-dark">
+        Eliminar Cliente
+    </h2>
+
+    <div class="alert alert-warning">
+        ¿Estás seguro que deseas eliminar este cliente?
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Nombre</dt>
+                <dd class="col-sm-9">@Model.Nombre @Model.Apellidos</dd>
+
+                <dt class="col-sm-3">Correo</dt>
+                <dd class="col-sm-9">@Model.Correo</dd>
+
+                <dt class="col-sm-3">Teléfono</dt>
+                <dd class="col-sm-9">@Model.Telefono</dd>
+
+                <dt class="col-sm-3">Estado</dt>
+                <dd class="col-sm-9">
+                    @(Model.Activo == true ? "Activo" : "Inactivo")
+                </dd>
+            </dl>
+
+            <form asp-action="DeleteCliente" method="post" class="mt-4">
+                <input type="hidden" asp-for="IdCliente" />
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="IndexCliente" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        Eliminar
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,105 @@
+@model List<ProyMvcProyectoOnline205.Models.Ventum>
+
+@{
+    Layout = "_LayoutShop";
+    ViewData["Title"] = "Mis pedidos";
+
+    string EstadoLabel(int? id) => id switch {
+        1 => "Registrado", 2 => "Pagado", 3 => "En preparación",
+        4 => "Enviado",    5 => "Entregado", 6 => "Cancelado", _ => "—"
+    };
+    string EstadoVariant(int? id) => id switch {
+        1 => "info",    2 => "success", 3 => "warning",
+        4 => "brand",   5 => "success", 6 => "danger",  _ => ""
+    };
+}
+
+<div class="container py-4">
+
+    <!-- Encabezado -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+        <div>
+            <h2 style="font-size:1.5rem;font-weight:700;margin:0">Mis pedidos</h2>
+            <p style="color:var(--app-text-muted);font-size:.875rem;margin:.2rem 0 0">
+                Historial de compras realizadas.
+            </p>
+        </div>
+        @if (Model.Any())
+        {
+            <a asp-action="DescargarTodosPedidos" class="app-btn app-btn--ghost">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Descargar PDF
+            </a>
+        }
+    </div>
+
+    <partial name="Components/_FlashMessage" />
+
+    @if (!Model.Any())
+    {
+        <div class="app-card">
+            <div class="app-card__body">
+                <div class="app-empty">
+                    <div class="app-empty__icon" aria-hidden="true">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/>
+                        </svg>
+                    </div>
+                    <div class="app-empty__title">Sin pedidos aún</div>
+                    <div class="app-empty__text">Explora el catálogo y realiza tu primera compra.</div>
+                    <a asp-controller="Home" asp-action="Index" class="app-btn app-btn--primary" style="margin-top:.75rem">
+                        Ir al catálogo
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width:80px">Pedido</th>
+                            <th>Fecha</th>
+                            <th class="col-money">Total</th>
+                            <th>Estado</th>
+                            <th class="col-actions">Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="col-id">#@p.IdVenta</td>
+                            <td class="u-text-muted">@p.FechaVenta?.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="col-money" style="color:var(--app-success);font-weight:700">
+                                S/ @p.MontoTotal?.ToString("N2")
+                            </td>
+                            <td>
+                                <partial name="Components/_StatusPill" model='new {
+                                    variant = EstadoVariant(p.IdEstadoPedido),
+                                    text    = EstadoLabel(p.IdEstadoPedido)
+                                }' />
+                            </td>
+                            <td class="col-actions">
+                                <a class="app-btn app-btn--ghost" asp-action="DetailsPedido" asp-route-id="@p.IdVenta" title="Ver detalle">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

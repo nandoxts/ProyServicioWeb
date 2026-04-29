@@ -1,0 +1,46 @@
+﻿@model ProyMvcProyectoOnline205.Models.Usuario
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<h1>Editar Usuario</h1>
+
+<hr />
+
+<form asp-action="EditUsuario" method="post">
+    <input type="hidden" asp-for="IdUsuario" />
+
+    <div class="form-group mb-3">
+        <label asp-for="IdRol"></label>
+        <input asp-for="IdRol" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Nombres"></label>
+        <input asp-for="Nombres" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Apellidos"></label>
+        <input asp-for="Apellidos" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Correo"></label>
+        <input asp-for="Correo" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Activo"></label>
+        <input asp-for="Activo" class="form-control" readonly />
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="FechaRegistro"></label>
+        <input asp-for="FechaRegistro" class="form-control" readonly />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    <a asp-action="IndexUsuario" class="btn btn-secondary">Volver</a>
+</form>

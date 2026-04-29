@@ -1,0 +1,112 @@
+﻿@model IEnumerable<ProyMvcProyectoOnline205.Models.Notificacion>
+
+@{
+    ViewData["Title"] = "Notificaciones";
+
+    Layout = Context.Session.GetInt32("IdRol") == 3
+        ? "_LayoutShop"
+        : "_LayoutAdmin";
+}
+<div class="container-fluid mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">🔔 Notificaciones</h4>
+    </div>
+
+    @if (TempData["mensaje"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @TempData["mensaje"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Mensaje</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                      <tr class="@(item.EsLeido == true ? "table-success bg-opacity-25" : "table-warning")">
+
+
+                            <td class="fw-semibold">
+                                @item.IdNotificacion
+                            </td>
+
+                            <td>
+                                <span class="d-inline-block text-truncate" style="max-width: 350px;">
+                                    @item.Mensaje
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (item.EsLeido == true)
+                                {
+                                    <span class="badge bg-success">
+                                        Leída
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Pendiente
+                                    </span>
+                                }
+                            </td>
+                                
+                            <td class="text-muted">
+                                @item.FechaCreacion?.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+
+                                    <a asp-action="DetailsNotificacion"
+                                       asp-route-id="@item.IdNotificacion"
+                                       class="btn btn-outline-primary"
+                                       title="Ver detalle">
+                                        👁
+                                    </a>
+
+                                    @if (item.EsLeido == false)
+                                    {
+                                        <a asp-action="MarcarLeida"
+                                           asp-route-id="@item.IdNotificacion"
+                                           class="btn btn-outline-success"
+                                           title="Marcar como leída">
+                                            ✔
+                                        </a>
+                                    }
+
+                                    <a asp-action="DeleteNotificacion"
+                                       asp-route-id="@item.IdNotificacion"
+                                       class="btn btn-outline-danger"
+                                       title="Eliminar"
+                                       onclick="return confirm('¿Eliminar esta notificación?');">
+                                        🗑
+                                    </a>
+
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>

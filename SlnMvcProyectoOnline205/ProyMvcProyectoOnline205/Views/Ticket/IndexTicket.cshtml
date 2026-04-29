@@ -1,0 +1,186 @@
+@model IEnumerable<ProyMvcProyectoOnline205.Models.Ticket>
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var rol = HttpContextAccessor.HttpContext?.Session.GetInt32("IdRol");
+    bool esAdmin = rol == 1 || rol == 2;
+
+    // Layout condicional: admin ve panel admin, cliente ve tienda
+    Layout = esAdmin ? "_LayoutAdmin" : "_LayoutShop";
+
+    ViewData["Title"]        = "Tickets";
+    ViewData["PageTitle"]    = esAdmin ? "Gestión de tickets" : "Mis tickets de soporte";
+    ViewData["PageSubtitle"] = esAdmin
+        ? "Solicitudes de soporte abiertas por los clientes."
+        : "Consultas y solicitudes de ayuda enviadas al equipo.";
+    ViewData["PageCrumbs"] = esAdmin
+        ? new[] { "Operación", "Tickets" }
+        : null;
+
+    if (esAdmin)
+    {
+        ViewData["PageActions"] = null; // admin solo gestiona, no crea
+    }
+    else
+    {
+        ViewData["PageActions"] = (Func<object, Microsoft.AspNetCore.Html.IHtmlContent>)(@<text>
+            <a asp-action="CreateTicket" class="app-btn app-btn--primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Nuevo ticket
+            </a>
+        </text>);
+    }
+
+    string EstadoVariant(string? estado) => estado switch
+    {
+        "Respondido" => "success",
+        "Cerrado"    => "danger",
+        "Pendiente"  => "warning",
+        _            => "info"
+    };
+}
+
+@if (esAdmin)
+{
+    <partial name="Admin/_PageHeader" />
+}
+else
+{
+    <div style="padding:1.5rem 0 1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+            <div>
+                <h2 style="font-size:1.5rem;font-weight:700;margin:0">Mis tickets de soporte</h2>
+                <p style="color:var(--app-text-muted);font-size:.875rem;margin:.25rem 0 0">
+                    Consultas y solicitudes de ayuda enviadas al equipo.
+                </p>
+            </div>
+            <a asp-action="CreateTicket" class="app-btn app-btn--primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Nuevo ticket
+            </a>
+        </div>
+    </div>
+}
+
+<partial name="Components/_FlashMessage" />
+
+<div class="admin-table-wrap">
+    <div class="admin-table-toolbar">
+        <div class="admin-table-toolbar__search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="search" id="ticketSearch" placeholder="Buscar por asunto…" />
+        </div>
+        <span class="app-pill">@Model.Count() registros</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table" id="ticketsTable">
+            <thead>
+                <tr>
+                    <th style="width:60px">ID</th>
+                    <th>Asunto</th>
+                    <th>Estado</th>
+                    @if (esAdmin)
+                    {
+                        <th>Cliente</th>
+                        <th>Gestionado por</th>
+                    }
+                    <th>Fecha</th>
+                    <th class="col-actions">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <partial name="Components/_EmptyRow" model='new {
+                    colspan  = esAdmin ? 7 : 5,
+                    title    = "Sin tickets",
+                    text     = esAdmin ? "No hay tickets registrados." : "No tienes tickets abiertos."
+                }' />
+            }
+            else
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="col-id">#@item.IdTicket</td>
+                        <td style="font-weight:600;max-width:280px">
+                            <div class="u-truncate">@item.Asunto</div>
+                            @if (!string.IsNullOrEmpty(item.Descripcion))
+                            {
+                                <div class="u-text-muted" style="font-size:.75rem;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px">@item.Descripcion</div>
+                            }
+                        </td>
+                        <td>
+                            <partial name="Components/_StatusPill" model='new {
+                                variant = EstadoVariant(item.Estado),
+                                text    = item.Estado ?? "—"
+                            }' />
+                        </td>
+                        @if (esAdmin)
+                        {
+                            <td class="u-text-muted">Cliente #@(item.IdClienteOrigen?.ToString() ?? "—")</td>
+                            <td class="u-text-muted">@(item.IdUsuarioGestion.HasValue ? "Usuario #" + item.IdUsuarioGestion : "—")</td>
+                        }
+                        <td class="u-text-muted">@item.FechaCreacion?.ToString("dd/MM/yyyy")</td>
+                        <td class="col-actions">
+                            <div class="admin-row-actions">
+                                <a class="app-btn app-btn--ghost"
+                                   asp-action="DetailsTicket" asp-route-id="@item.IdTicket"
+                                   title="Ver detalle">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </a>
+                                @if (esAdmin && item.Estado != "Cerrado")
+                                {
+                                    <a class="app-btn app-btn--ghost"
+                                       asp-action="ResponderTicket" asp-route-id="@item.IdTicket"
+                                       title="Responder">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                    </a>
+                                    <a class="app-btn app-btn--danger"
+                                       asp-action="CerrarTicket" asp-route-id="@item.IdTicket"
+                                       data-confirm="¿Cerrar el ticket #@item.IdTicket?" data-confirm-danger="1"
+                                       data-confirm-ok="Cerrar" title="Cerrar ticket">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('ticketSearch');
+            var table = document.getElementById('ticketsTable');
+            if (!input || !table) return;
+            input.addEventListener('input', App.debounce(function () {
+                var q = input.value.trim().toLowerCase();
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    if (tr.querySelector('.app-empty')) return;
+                    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+                });
+            }, 150));
+        })();
+    </script>
+}

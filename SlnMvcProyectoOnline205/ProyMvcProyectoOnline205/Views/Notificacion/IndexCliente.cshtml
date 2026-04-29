@@ -1,0 +1,55 @@
+﻿@model IEnumerable<ProyMvcProyectoOnline205.Models.NotificacionCliente>
+
+@{
+    ViewData["Title"] = "Mis Notificaciones";
+    Layout = "_LayoutShop";
+}
+
+<div class="container mt-4">
+    <h4>🔔 Mis notificaciones</h4>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No tienes notificaciones.
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Mensaje</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var n in Model)
+                {
+                    <tr class="@(n.EsLeido == true ? "table-success" : "table-warning")">
+
+                        <td>@n.Mensaje</td>
+
+                        <td>
+                            @n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+
+                        <td>
+                            @if (n.EsLeido == true)
+                            {
+                                <span class="badge bg-success">Leída</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Pendiente</span>
+                            }
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

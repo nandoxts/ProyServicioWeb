@@ -1,0 +1,41 @@
+@*
+    Componente: _StatusPill
+    --------------------------------------------------------------
+    Renderiza una pill de estado.
+        active: bool  -> success/danger
+        labelOn / labelOff: textos opcionales (default Activo/Inactivo)
+        variant: brand | success | danger | warning | info (override)
+        text: si se pasa, ignora active y muestra ese texto literal
+
+    Uso:
+        <partial name="Components/_StatusPill" model='new { active = item.Activo }' />
+        <partial name="Components/_StatusPill" model='new { variant = "warning", text = "Pendiente" }' />
+*@
+
+@model dynamic
+
+@{
+    string variant = null;
+    string text    = null;
+    string labelOn  = "Activo";
+    string labelOff = "Inactivo";
+    bool? active = null;
+
+    try { variant  = Model?.variant as string; } catch {}
+    try { text     = Model?.text as string; }    catch {}
+    try { var lOn  = Model?.labelOn as string;  if (!string.IsNullOrEmpty(lOn))  labelOn = lOn; } catch {}
+    try { var lOff = Model?.labelOff as string; if (!string.IsNullOrEmpty(lOff)) labelOff = lOff; } catch {}
+    try { active   = (bool?)Model?.active; } catch {}
+
+    string display = text;
+    if (string.IsNullOrEmpty(display))
+    {
+        display = (active == true) ? labelOn : labelOff;
+    }
+    if (string.IsNullOrEmpty(variant))
+    {
+        variant = (active == true) ? "success" : "danger";
+    }
+}
+
+<span class="app-pill app-pill--@variant">@display</span>

@@ -1,0 +1,86 @@
+﻿@model ProyMvcProyectoOnline205.Models.Cliente
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Detalle del Cliente";
+}
+
+<div class="container-fluid px-4">
+
+    <!-- TÍTULO -->
+    <h2 class="mt-4 mb-4 text-dark">
+        Detalle del Cliente
+    </h2>
+
+    <!-- CARD -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Nombre completo</label>
+                    <p class="form-control-plaintext">
+                        @Model.Nombre @Model.Apellidos
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Correo</label>
+                    <p class="form-control-plaintext">
+                        @Model.Correo
+                    </p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Teléfono</label>
+                    <p class="form-control-plaintext">
+                        @Model.Telefono
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Estado</label>
+                    <p>
+                        @if (Model.Activo == true)
+                        {
+                            <span class="badge bg-success">
+                                Activo
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                Inactivo
+                            </span>
+                        }
+
+                    </p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Fecha de registro</label>
+                    <p class="form-control-plaintext">
+                        @Model.FechaRegistro?.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a asp-action="IndexCliente" class="btn btn-outline-secondary">
+                    Volver
+                </a>
+                <a asp-action="EditCliente"
+                   asp-route-id="@Model.IdCliente"
+                   class="btn btn-dark">
+                    Editar
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>

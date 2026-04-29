@@ -1,0 +1,49 @@
+@*
+    Partial: _PageHeader (admin)
+    --------------------------------------------------------------
+    Encabezado de página con migas opcionales, título, subtítulo
+    y zona de acciones (botones a la derecha).
+
+    Uso desde una vista:
+        @{
+            ViewData["PageTitle"]    = "Productos";
+            ViewData["PageSubtitle"] = "Gestión del inventario";
+            ViewData["PageCrumbs"]   = new[] { "Catálogo", "Productos" };
+        }
+        <partial name="Admin/_PageHeader" />
+
+    Acciones (zona derecha) opcional:
+        @{ ViewData["PageActions"] = (Func<object, IHtmlContent>)(@<text>
+            <a asp-action="CreateProducto" class="app-btn app-btn--primary">Nuevo</a>
+        </text>); }
+*@
+
+@{
+    var title    = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "";
+    var subtitle = ViewData["PageSubtitle"] as string;
+    var crumbs   = ViewData["PageCrumbs"] as string[];
+    var actions  = ViewData["PageActions"] as Func<object, Microsoft.AspNetCore.Html.IHtmlContent>;
+}
+
+<div class="admin-page-header">
+    <div class="admin-page-header__group">
+        @if (crumbs != null && crumbs.Length > 0)
+        {
+            <div class="admin-page-header__crumbs">
+                @foreach (var c in crumbs) { <span>@c</span> }
+            </div>
+        }
+        <h2 class="admin-page-header__title">@title</h2>
+        @if (!string.IsNullOrEmpty(subtitle))
+        {
+            <p class="admin-page-header__subtitle">@subtitle</p>
+        }
+    </div>
+
+    @if (actions != null)
+    {
+        <div class="admin-page-header__actions">
+            @actions(null)
+        </div>
+    }
+</div>

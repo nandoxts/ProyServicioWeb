@@ -1,0 +1,138 @@
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"]        = "Dashboard";
+    ViewData["PageTitle"]    = "Panel de control";
+    ViewData["PageSubtitle"] = "Resumen general del sistema.";
+    ViewData["PageCrumbs"]   = new[] { "General", "Dashboard" };
+}
+
+<partial name="Admin/_PageHeader" />
+
+<!-- ── STAT CARDS ─────────────────────────────────────────── -->
+<div class="admin-stats">
+
+    <div class="admin-stat">
+        <span class="admin-stat__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m7.5 4.27 9 5.15"/><path d="M21 8 12 13 3 8"/><path d="M3 8v8l9 5 9-5V8"/>
+                <path d="M12 22V13"/>
+            </svg>
+        </span>
+        <div>
+            <div class="admin-stat__label">Productos</div>
+            <div class="admin-stat__value">@ViewBag.TotalProductos</div>
+            <a asp-controller="Producto" asp-action="IndexProducto" class="admin-stat__delta">Ver catálogo</a>
+        </div>
+    </div>
+
+    <div class="admin-stat admin-stat--success">
+        <span class="admin-stat__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>
+            </svg>
+        </span>
+        <div>
+            <div class="admin-stat__label">Pedidos</div>
+            <div class="admin-stat__value">@ViewBag.TotalPedidos</div>
+            <a asp-controller="Pedido" asp-action="IndexAdmin" class="admin-stat__delta">Ver pedidos</a>
+        </div>
+    </div>
+
+    <div class="admin-stat">
+        <span class="admin-stat__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+        </span>
+        <div>
+            <div class="admin-stat__label">Clientes</div>
+            <div class="admin-stat__value">@ViewBag.TotalClientes</div>
+            <a asp-controller="Cliente" asp-action="IndexCliente" class="admin-stat__delta">Ver clientes</a>
+        </div>
+    </div>
+
+    <div class="admin-stat admin-stat--warning">
+        <span class="admin-stat__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 9.5V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2.5a2.5 2.5 0 0 0 0 5V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2.5a2.5 2.5 0 0 0 0-5Z"/>
+            </svg>
+        </span>
+        <div>
+            <div class="admin-stat__label">Tickets</div>
+            <div class="admin-stat__value">@ViewBag.TotalTickets</div>
+            <a asp-controller="Ticket" asp-action="IndexTicket" class="admin-stat__delta">Ver tickets</a>
+        </div>
+    </div>
+
+    <div class="admin-stat admin-stat--danger">
+        <span class="admin-stat__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+            </svg>
+        </span>
+        <div>
+            <div class="admin-stat__label">Usuarios admin</div>
+            <div class="admin-stat__value">@ViewBag.TotalUsuarios</div>
+            <a asp-controller="Usuario" asp-action="IndexUsuario" class="admin-stat__delta">Ver usuarios</a>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── ACCESOS RÁPIDOS ─────────────────────────────────────── -->
+<div class="app-card" style="margin-top:1.5rem">
+    <div class="app-card__header">Accesos rápidos</div>
+    <div class="app-card__body" style="display:grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap:.75rem">
+
+        <a asp-controller="Producto" asp-action="CreateProducto" class="app-btn app-btn--ghost" style="justify-content:flex-start;gap:.65rem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Nuevo producto
+        </a>
+
+        <a asp-controller="Usuario" asp-action="CreateUsuario" class="app-btn app-btn--ghost" style="justify-content:flex-start;gap:.65rem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Nuevo usuario
+        </a>
+
+        <a asp-controller="Pedido" asp-action="IndexAdmin" class="app-btn app-btn--ghost" style="justify-content:flex-start;gap:.65rem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <path d="M14 2v6h6"/>
+            </svg>
+            Gestionar pedidos
+        </a>
+
+        <a asp-controller="Ticket" asp-action="IndexTicket" class="app-btn app-btn--ghost" style="justify-content:flex-start;gap:.65rem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 9.5V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2.5a2.5 2.5 0 0 0 0 5V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2.5a2.5 2.5 0 0 0 0-5Z"/>
+            </svg>
+            Gestionar tickets
+        </a>
+
+        <a asp-controller="Notificacion" asp-action="Index" class="app-btn app-btn--ghost" style="justify-content:flex-start;gap:.65rem">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+            </svg>
+            Notificaciones
+        </a>
+
+        <a asp-controller="Autenticacion" asp-action="Logout" class="app-btn app-btn--ghost" style="justify-content:flex-start;gap:.65rem;color:var(--app-danger)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Cerrar sesión
+        </a>
+
+    </div>
+</div>

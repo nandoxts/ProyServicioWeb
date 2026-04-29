@@ -1,0 +1,109 @@
+@model IEnumerable<ProyMvcProyectoOnline205.Models.Producto>
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"]        = "Productos";
+    ViewData["PageTitle"]    = "Inventario de productos";
+    ViewData["PageSubtitle"] = "Listado, edición y baja del catálogo.";
+    ViewData["PageCrumbs"]   = new[] { "Catálogo", "Productos" };
+
+    ViewData["PageActions"] = (Func<object, Microsoft.AspNetCore.Html.IHtmlContent>)(@<text>
+        <a asp-action="CreateProducto" class="app-btn app-btn--primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Nuevo producto
+        </a>
+    </text>);
+}
+
+<partial name="Admin/_PageHeader" />
+
+<div class="admin-table-wrap">
+    <div class="admin-table-toolbar">
+        <div class="admin-table-toolbar__search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="search" id="tableSearch" placeholder="Buscar por nombre o descripción…" />
+        </div>
+        <span class="app-pill">@Model.Count() registros</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table" id="productosTable">
+            <thead>
+                <tr>
+                    <th style="width:60px">ID</th>
+                    <th>Producto</th>
+                    <th>Marca</th>
+                    <th>Categoría</th>
+                    <th class="col-money">Precio</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th>Registro</th>
+                    <th class="col-actions">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <partial name="Components/_EmptyRow" model='new {
+                    colspan = 9,
+                    title   = "Sin productos",
+                    text    = "Aún no se han registrado productos en el catálogo."
+                }' />
+            }
+            else
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="col-id">#@item.IdProducto</td>
+                        <td>
+                            <div style="font-weight:600">@item.Nombre</div>
+                            <div class="u-text-muted" style="font-size:.78rem">@item.Descripcion</div>
+                        </td>
+                        <td>@item.IdMarca</td>
+                        <td>@item.IdCategoria</td>
+                        <td class="col-money">S/ @item.Precio?.ToString("N2")</td>
+                        <td>@item.Stock</td>
+                        <td>
+                            <partial name="Components/_StatusPill" model='new { active = item.Activo }' />
+                        </td>
+                        <td class="u-text-muted">@item.FechaRegistro?.ToString("dd/MM/yyyy")</td>
+                        <td class="col-actions">
+                            <partial name="Components/_RowActions" model='new {
+                                id            = item.IdProducto,
+                                controller    = "Producto",
+                                detailsAction = "DetailsProducto",
+                                editAction    = "EditProducto",
+                                deleteAction  = "DeleteProducto",
+                                confirmText   = "¿Eliminar el producto " + item.Nombre + "? Esta acción no se puede deshacer."
+                            }' />
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('tableSearch');
+            var table = document.getElementById('productosTable');
+            if (!input || !table) return;
+            var filter = App.debounce(function () {
+                var q = input.value.trim().toLowerCase();
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    if (tr.querySelector('.app-empty')) return;
+                    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+                });
+            }, 150);
+            input.addEventListener('input', filter);
+        })();
+    </script>
+}

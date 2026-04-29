@@ -1,0 +1,84 @@
+@*
+    Layout: _LayoutAdmin
+    --------------------------------------------------------------
+    Layout del panel administrativo. Modular: sidebar, topbar y
+    page-header son partials reusables (Views/Shared/Admin/*).
+    Componentes (status pill, row actions, flash, empty row) viven
+    en Views/Shared/Components/*.
+
+    Estilos: app.css (tokens) + admin-modern.css (layout admin).
+    Iconos: SVG inline (sin emojis ni FontAwesome).
+*@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(ViewData["Title"] ?? "Panel") · NexusShop Admin</title>
+
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/app.css"          rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/admin-modern.css" rel="stylesheet" asp-append-version="true" />
+</head>
+
+<body>
+
+    <div class="admin" id="adminRoot">
+
+        <partial name="Admin/_Sidebar" />
+        <partial name="Admin/_Topbar" />
+
+        <main class="admin-content">
+            <partial name="Components/_FlashMessage" />
+            @RenderBody()
+        </main>
+
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+
+    <script>
+        (function () {
+            var root = document.getElementById('adminRoot');
+            if (!root) return;
+
+            // Restaurar estado colapsado
+            try {
+                if (localStorage.getItem('admin.sidebar.collapsed') === '1') {
+                    root.classList.add('is-collapsed');
+                }
+            } catch (e) { /* ignore */ }
+
+            // Toggle del sidebar (desktop: colapsar; mobile: drawer)
+            document.addEventListener('click', function (e) {
+                var t = e.target.closest('[data-admin-toggle]');
+                if (!t) return;
+                e.preventDefault();
+                var isMobile = window.matchMedia('(max-width: 992px)').matches;
+                if (isMobile) {
+                    root.classList.toggle('is-open');
+                } else {
+                    root.classList.toggle('is-collapsed');
+                    try {
+                        localStorage.setItem(
+                            'admin.sidebar.collapsed',
+                            root.classList.contains('is-collapsed') ? '1' : '0'
+                        );
+                    } catch (e) { /* ignore */ }
+                }
+            });
+
+            // Cerrar drawer al navegar (mobile)
+            document.addEventListener('click', function (e) {
+                if (!window.matchMedia('(max-width: 992px)').matches) return;
+                var link = e.target.closest('.admin-sidebar__link');
+                if (link) root.classList.remove('is-open');
+            });
+        })();
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

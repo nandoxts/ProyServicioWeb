@@ -1,0 +1,518 @@
+/* ============================================================
+   APP.CSS — Sistema de diseño central (NexusShop)
+   ------------------------------------------------------------
+   Carga global, antes que cualquier otro CSS de la app.
+   Define tokens, base, utilidades y componentes compartidos
+   (botones, cards, badges, toasts, modales, formularios,
+   page-header, empty-state) usables desde Tienda y Admin.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ============================================================
+   1. DESIGN TOKENS
+   ============================================================ */
+:root {
+    /* ── Marca ─────────────────────────────────────────────── */
+    --app-brand-dark:    #0f172a;
+    --app-brand-mid:     #1e293b;
+    --app-brand-accent:  #6366f1;
+    --app-brand-accent2: #818cf8;
+    --app-brand-hover:   #4f46e5;
+
+    /* ── Texto ─────────────────────────────────────────────── */
+    --app-text:          #0f172a;
+    --app-text-muted:    #64748b;
+    --app-text-light:    #94a3b8;
+    --app-text-on-dark:  #cbd5e1;
+
+    /* ── Superficies ───────────────────────────────────────── */
+    --app-surface:       #ffffff;
+    --app-surface-alt:   #f8fafc;
+    --app-surface-2:     #f1f5f9;
+    --app-border:        #e2e8f0;
+    --app-border-strong: #cbd5e1;
+
+    /* ── Estados ───────────────────────────────────────────── */
+    --app-success:       #10b981;
+    --app-success-soft:  #d1fae5;
+    --app-warning:       #f59e0b;
+    --app-warning-soft:  #fef3c7;
+    --app-danger:        #ef4444;
+    --app-danger-soft:   #fee2e2;
+    --app-info:          #3b82f6;
+    --app-info-soft:     #dbeafe;
+
+    /* ── Tipografía ────────────────────────────────────────── */
+    --app-font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --app-fs-xs:   .75rem;
+    --app-fs-sm:   .8125rem;
+    --app-fs-base: .9375rem;
+    --app-fs-md:   1rem;
+    --app-fs-lg:   1.125rem;
+    --app-fs-xl:   1.25rem;
+    --app-fs-2xl:  1.5rem;
+    --app-fs-3xl:  2rem;
+
+    /* ── Espaciado ─────────────────────────────────────────── */
+    --app-space-1: .25rem;
+    --app-space-2: .5rem;
+    --app-space-3: .75rem;
+    --app-space-4: 1rem;
+    --app-space-5: 1.5rem;
+    --app-space-6: 2rem;
+    --app-space-8: 3rem;
+
+    /* ── Radios ────────────────────────────────────────────── */
+    --app-radius-sm:   6px;
+    --app-radius:      10px;
+    --app-radius-md:   12px;
+    --app-radius-lg:   16px;
+    --app-radius-pill: 9999px;
+
+    /* ── Sombras ───────────────────────────────────────────── */
+    --app-shadow-xs: 0 1px 2px rgba(0,0,0,.05);
+    --app-shadow-sm: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+    --app-shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+    --app-shadow-lg: 0 10px 30px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.06);
+    --app-shadow-xl: 0 20px 50px rgba(0,0,0,.15), 0 8px 20px rgba(0,0,0,.08);
+
+    /* ── Animaciones ───────────────────────────────────────── */
+    --app-transition: all .22s cubic-bezier(.4,0,.2,1);
+    --app-transition-fast: all .12s ease;
+
+    /* ── Z-index ───────────────────────────────────────────── */
+    --app-z-dropdown: 1000;
+    --app-z-sticky:   1020;
+    --app-z-navbar:   1030;
+    --app-z-modal:    1050;
+    --app-z-toast:    1080;
+
+    /* ── Compatibilidad (alias con tokens existentes) ──────── */
+    --brand-dark:    var(--app-brand-dark);
+    --brand-mid:     var(--app-brand-mid);
+    --brand-accent:  var(--app-brand-accent);
+    --brand-accent2: var(--app-brand-accent2);
+    --brand-hover:   var(--app-brand-hover);
+    --text-primary:  var(--app-text);
+    --text-muted:    var(--app-text-muted);
+    --text-light:    var(--app-text-light);
+    --surface:       var(--app-surface);
+    --surface-alt:   var(--app-surface-alt);
+    --border:        var(--app-border);
+    --shadow-sm:     var(--app-shadow-sm);
+    --shadow-md:     var(--app-shadow-md);
+    --shadow-lg:     var(--app-shadow-lg);
+    --radius:        var(--app-radius-md);
+    --radius-sm:     var(--app-radius);
+    --radius-pill:   var(--app-radius-pill);
+    --transition:    var(--app-transition);
+}
+
+/* ============================================================
+   2. BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    font-family: var(--app-font-sans);
+    font-size: var(--app-fs-base);
+    line-height: 1.6;
+    color: var(--app-text);
+    background: var(--app-surface-alt);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: var(--app-brand-accent); text-decoration: none; transition: var(--app-transition-fast); }
+a:hover { color: var(--app-brand-hover); }
+
+/* Scroll suave + scrollbar discreta */
+html { scroll-behavior: smooth; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--app-border-strong); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--app-text-light); }
+
+/* ============================================================
+   3. UTILIDADES (prefijo .u-)
+   ============================================================ */
+.u-text-muted    { color: var(--app-text-muted) !important; }
+.u-text-brand    { color: var(--app-brand-accent) !important; }
+.u-text-success  { color: var(--app-success) !important; }
+.u-text-danger   { color: var(--app-danger) !important; }
+.u-text-warning  { color: var(--app-warning) !important; }
+
+.u-bg-surface     { background: var(--app-surface) !important; }
+.u-bg-surface-alt { background: var(--app-surface-alt) !important; }
+.u-bg-brand       { background: var(--app-brand-accent) !important; color: #fff; }
+
+.u-radius      { border-radius: var(--app-radius-md) !important; }
+.u-radius-lg   { border-radius: var(--app-radius-lg) !important; }
+.u-radius-pill { border-radius: var(--app-radius-pill) !important; }
+
+.u-shadow    { box-shadow: var(--app-shadow-md) !important; }
+.u-shadow-lg { box-shadow: var(--app-shadow-lg) !important; }
+
+.u-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.u-divider {
+    border: 0;
+    border-top: 1px solid var(--app-border);
+    margin: var(--app-space-5) 0;
+}
+
+/* ============================================================
+   4. PAGE HEADER (título de página + acciones)
+   ============================================================ */
+.app-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--app-space-4);
+    padding: var(--app-space-5) 0 var(--app-space-4);
+    border-bottom: 1px solid var(--app-border);
+    margin-bottom: var(--app-space-5);
+}
+.app-page-header__title {
+    font-size: var(--app-fs-2xl);
+    font-weight: 700;
+    color: var(--app-text);
+    letter-spacing: -.02em;
+    margin: 0;
+}
+.app-page-header__subtitle {
+    font-size: var(--app-fs-sm);
+    color: var(--app-text-muted);
+    margin: .15rem 0 0;
+}
+.app-page-header__actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* ============================================================
+   5. CARD GENÉRICA
+   ============================================================ */
+.app-card {
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-md);
+    box-shadow: var(--app-shadow-sm);
+    overflow: hidden;
+    transition: var(--app-transition);
+}
+.app-card:hover {
+    box-shadow: var(--app-shadow-md);
+}
+.app-card__header {
+    padding: var(--app-space-4) var(--app-space-5);
+    border-bottom: 1px solid var(--app-border);
+    font-weight: 600;
+    color: var(--app-text);
+    background: var(--app-surface-alt);
+}
+.app-card__body  { padding: var(--app-space-5); }
+.app-card__footer{
+    padding: var(--app-space-4) var(--app-space-5);
+    border-top: 1px solid var(--app-border);
+    background: var(--app-surface-alt);
+}
+
+/* ============================================================
+   6. BOTONES (.app-btn)
+   ============================================================ */
+.app-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding: .55rem 1.05rem;
+    font-family: var(--app-font-sans);
+    font-size: var(--app-fs-sm);
+    font-weight: 600;
+    line-height: 1.2;
+    border: 1px solid transparent;
+    border-radius: var(--app-radius);
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--app-transition);
+    user-select: none;
+    white-space: nowrap;
+}
+.app-btn:disabled, .app-btn.is-disabled { opacity: .55; cursor: not-allowed; }
+.app-btn:focus-visible {
+    outline: 2px solid var(--app-brand-accent2);
+    outline-offset: 2px;
+}
+
+.app-btn--primary {
+    background: var(--app-brand-accent);
+    color: #fff;
+}
+.app-btn--primary:hover { background: var(--app-brand-hover); color: #fff; }
+
+.app-btn--ghost {
+    background: transparent;
+    color: var(--app-text);
+    border-color: var(--app-border);
+}
+.app-btn--ghost:hover { background: var(--app-surface-alt); border-color: var(--app-border-strong); }
+
+.app-btn--danger {
+    background: var(--app-danger);
+    color: #fff;
+}
+.app-btn--danger:hover { background: #dc2626; color: #fff; }
+
+.app-btn--success {
+    background: var(--app-success);
+    color: #fff;
+}
+.app-btn--success:hover { background: #059669; color: #fff; }
+
+.app-btn--sm { padding: .35rem .75rem; font-size: var(--app-fs-xs); }
+.app-btn--lg { padding: .8rem 1.5rem; font-size: var(--app-fs-md); }
+
+.app-btn--icon {
+    padding: .45rem;
+    width: 2.25rem;
+    height: 2.25rem;
+}
+
+/* ============================================================
+   7. BADGES / PILLS (.app-pill)
+   ============================================================ */
+.app-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2em .65em;
+    font-size: var(--app-fs-xs);
+    font-weight: 600;
+    line-height: 1.4;
+    border-radius: var(--app-radius-pill);
+    background: var(--app-surface-2);
+    color: var(--app-text-muted);
+    border: 1px solid var(--app-border);
+}
+.app-pill--brand   { background: rgba(99,102,241,.1);  color: var(--app-brand-accent); border-color: rgba(99,102,241,.2); }
+.app-pill--success { background: var(--app-success-soft); color: #047857; border-color: transparent; }
+.app-pill--danger  { background: var(--app-danger-soft);  color: #b91c1c; border-color: transparent; }
+.app-pill--warning { background: var(--app-warning-soft); color: #92400e; border-color: transparent; }
+.app-pill--info    { background: var(--app-info-soft);    color: #1d4ed8; border-color: transparent; }
+
+/* ============================================================
+   8. EMPTY STATE
+   ============================================================ */
+.app-empty {
+    text-align: center;
+    padding: var(--app-space-8) var(--app-space-5);
+    color: var(--app-text-muted);
+}
+.app-empty__icon { opacity: .3; margin-bottom: var(--app-space-4); font-size: 3rem; }
+.app-empty__title {
+    font-size: var(--app-fs-lg);
+    font-weight: 700;
+    color: var(--app-text);
+    margin-bottom: .5rem;
+}
+.app-empty__text { font-size: var(--app-fs-sm); margin-bottom: var(--app-space-4); }
+
+/* ============================================================
+   9. TOASTS (App.toast)
+   ============================================================ */
+.app-toast-host {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    z-index: var(--app-z-toast);
+    pointer-events: none;
+}
+.app-toast {
+    pointer-events: auto;
+    min-width: 280px;
+    max-width: 360px;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-left: 4px solid var(--app-brand-accent);
+    border-radius: var(--app-radius);
+    box-shadow: var(--app-shadow-lg);
+    padding: .85rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    font-size: var(--app-fs-sm);
+    color: var(--app-text);
+    animation: app-toast-in .25s cubic-bezier(.4,0,.2,1);
+}
+.app-toast.is-leaving { animation: app-toast-out .2s ease forwards; }
+.app-toast--success { border-left-color: var(--app-success); }
+.app-toast--danger  { border-left-color: var(--app-danger); }
+.app-toast--warning { border-left-color: var(--app-warning); }
+.app-toast--info    { border-left-color: var(--app-info); }
+
+.app-toast__icon  { flex-shrink: 0; font-size: 1.1rem; line-height: 1; }
+.app-toast__body  { flex: 1; }
+.app-toast__title { font-weight: 700; margin-bottom: .15rem; }
+.app-toast__text  { color: var(--app-text-muted); font-size: var(--app-fs-xs); }
+.app-toast__close {
+    background: transparent;
+    border: 0;
+    color: var(--app-text-light);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 .15rem;
+}
+.app-toast__close:hover { color: var(--app-text); }
+
+@keyframes app-toast-in {
+    from { transform: translateX(20px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes app-toast-out {
+    to { transform: translateX(20px); opacity: 0; }
+}
+
+/* ============================================================
+   10. MODAL DE CONFIRMACIÓN (App.confirm)
+   ============================================================ */
+.app-confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.55);
+    z-index: var(--app-z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: app-fade-in .15s ease;
+}
+.app-confirm {
+    background: var(--app-surface);
+    border-radius: var(--app-radius-lg);
+    box-shadow: var(--app-shadow-xl);
+    max-width: 420px;
+    width: 100%;
+    padding: var(--app-space-5);
+    animation: app-zoom-in .18s cubic-bezier(.4,0,.2,1);
+}
+.app-confirm__title {
+    font-size: var(--app-fs-lg);
+    font-weight: 700;
+    margin: 0 0 .5rem;
+    color: var(--app-text);
+}
+.app-confirm__msg {
+    font-size: var(--app-fs-sm);
+    color: var(--app-text-muted);
+    margin: 0 0 var(--app-space-5);
+    line-height: 1.55;
+}
+.app-confirm__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+}
+@keyframes app-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes app-zoom-in { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ============================================================
+   11. FORM ENHANCEMENTS (compatible Bootstrap)
+   ============================================================ */
+.app-form-group { margin-bottom: var(--app-space-4); }
+.app-form-label {
+    display: block;
+    font-size: var(--app-fs-sm);
+    font-weight: 600;
+    color: var(--app-text);
+    margin-bottom: .35rem;
+}
+.app-form-help {
+    display: block;
+    font-size: var(--app-fs-xs);
+    color: var(--app-text-muted);
+    margin-top: .25rem;
+}
+
+/* Sobrescritura sutil de form-control (sin romper Bootstrap) */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--app-brand-accent2);
+    box-shadow: 0 0 0 .2rem rgba(99,102,241,.15);
+}
+
+/* ============================================================
+   12. TABLAS (.app-table)
+   ============================================================ */
+.app-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-md);
+    overflow: hidden;
+    font-size: var(--app-fs-sm);
+}
+.app-table thead th {
+    background: var(--app-surface-alt);
+    color: var(--app-text-muted);
+    font-size: var(--app-fs-xs);
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--app-border);
+    text-align: left;
+}
+.app-table tbody td {
+    padding: .85rem 1rem;
+    border-bottom: 1px solid var(--app-border);
+    vertical-align: middle;
+}
+.app-table tbody tr:last-child td { border-bottom: 0; }
+.app-table tbody tr:hover { background: var(--app-surface-alt); }
+
+/* ============================================================
+   13. SKELETON (loading)
+   ============================================================ */
+.app-skeleton {
+    background: linear-gradient(90deg, var(--app-surface-2) 0%, var(--app-border) 50%, var(--app-surface-2) 100%);
+    background-size: 200% 100%;
+    animation: app-skeleton 1.4s linear infinite;
+    border-radius: var(--app-radius-sm);
+    color: transparent !important;
+    user-select: none;
+}
+@keyframes app-skeleton {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ============================================================
+   14. RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    body { font-size: .875rem; }
+    .app-page-header { padding: var(--app-space-4) 0 var(--app-space-3); }
+    .app-page-header__title { font-size: var(--app-fs-xl); }
+    .app-toast-host { left: 1rem; right: 1rem; }
+    .app-toast { max-width: none; }
+}
+
+/* ============================================================
+   15. PRINT
+   ============================================================ */
+@media print {
+    .app-toast-host, .app-confirm-backdrop { display: none !important; }
+    body { background: #fff; }
+}

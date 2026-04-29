@@ -1,0 +1,44 @@
+﻿@model ProyMvcProyectoOnline205.Models.Usuario
+
+@{
+    ViewData["Title"] = "Detalle de Usuario";
+}
+
+<h1>Detalle del Usuario</h1>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">ID</dt>
+    <dd class="col-sm-9">@Model.IdUsuario</dd>
+
+    <dt class="col-sm-3">Rol</dt>
+    <dd class="col-sm-9">@Model.IdRol</dd>
+
+    <dt class="col-sm-3">Nombres</dt>
+    <dd class="col-sm-9">@Model.Nombres</dd>
+
+    <dt class="col-sm-3">Apellidos</dt>
+    <dd class="col-sm-9">@Model.Apellidos</dd>
+
+    <dt class="col-sm-3">Correo</dt>
+    <dd class="col-sm-9">@Model.Correo</dd>
+
+    <dt class="col-sm-3">Reestablecer</dt>
+    <dd class="col-sm-9">
+        @(Model.Reestablecer == true ? "Sí" : "No")
+    </dd>
+
+    <dt class="col-sm-3">Activo</dt>
+    <dd class="col-sm-9">
+        @(Model.Activo == true ? "Activo" : "Inactivo")
+    </dd>
+
+    <dt class="col-sm-3">Fecha Registro</dt>
+    <dd class="col-sm-9">@Model.FechaRegistro</dd>
+</dl>
+
+<div class="mt-3">
+    <a asp-action="EditUsuario" asp-route-id="@Model.IdUsuario" class="btn btn-warning">Editar</a>
+    <a asp-action="IndexUsuario" class="btn btn-secondary">Volver</a>
+</div>

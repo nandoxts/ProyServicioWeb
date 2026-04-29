@@ -1,0 +1,50 @@
+﻿@model ProyMvcProyectoOnline205.Models.Ventum
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            font-family: Arial;
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 6px;
+        }
+
+        th {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h3>Productos del Pedido #@Model.IdVenta</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.DetalleVenta)
+            {
+                <tr>
+                    <td>@d.IdProductoNavigation?.Nombre</td>
+                    <td>@d.Cantidad</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

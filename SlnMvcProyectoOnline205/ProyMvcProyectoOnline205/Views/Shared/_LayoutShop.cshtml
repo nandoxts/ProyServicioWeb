@@ -1,0 +1,203 @@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var idCliente = HttpContextAccessor.HttpContext.Session.GetInt32("IdCliente");
+    var rol       = HttpContextAccessor.HttpContext.Session.GetInt32("IdRol");
+    var nombre    = HttpContextAccessor.HttpContext.Session.GetString("Nombre");
+    var notiTickets = HttpContextAccessor.HttpContext.Session.GetInt32("NotiTickets") ?? 0;
+    var notiNotif   = HttpContextAccessor.HttpContext.Session.GetInt32("NotiNotificaciones") ?? 0;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Tienda</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/app.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/shop-custom.css" rel="stylesheet" asp-append-version="true" />
+</head>
+<body>
+
+<!-- ════════ NAVBAR ════════ -->
+<nav class="shop-navbar navbar navbar-expand-lg">
+    <div class="container">
+
+        <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+            Nexus<span>Shop</span>
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarShop"
+                aria-controls="navbarShop" aria-expanded="false" aria-label="Menú">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarShop">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Z"/>
+                            <path d="M8 3.5a.5.5 0 0 1 .5.5v4.293l2.646 2.647a.5.5 0 0 1-.708.707L7.646 9H5.5a.5.5 0 0 1 0-1h1.793V4a.5.5 0 0 1 .5-.5z"/>
+                        </svg>
+                        Catalogo
+                    </a>
+                </li>
+
+                @if (rol == null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Autenticacion" asp-action="Login">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.025 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664h10Z"/>
+                            </svg>
+                            Iniciar sesion
+                        </a>
+                    </li>
+                }
+                else if (rol == 3)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" asp-controller="Carrito" asp-action="Index">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5ZM5 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm7 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/>
+                            </svg>
+                            Carrito
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Pedido" asp-action="IndexPedido">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5Zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5Z"/>
+                                <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2Zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3Z"/>
+                            </svg>
+                            Mis pedidos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" asp-controller="Ticket" asp-action="IndexTicket">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M0 4.5A1.5 1.5 0 0 1 1.5 3h13A1.5 1.5 0 0 1 16 4.5V6a.5.5 0 0 1-.5.5 1.5 1.5 0 0 0 0 3 .5.5 0 0 1 .5.5v1.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 11.5V10a.5.5 0 0 1 .5-.5 1.5 1.5 0 1 0 0-3A.5.5 0 0 1 0 6V4.5Z"/>
+                            </svg>
+                            Mis tickets
+                            @if (notiTickets > 0)
+                            {
+                                <span class="nav-badge">@notiTickets</span>
+                            }
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" asp-controller="Notificacion" asp-action="Index">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2ZM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917ZM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.flyout 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .629.134 2.197.459 3.742.16.767.376 1.566.663 2.258Z"/>
+                            </svg>
+                            Notificaciones
+                            <span id="badgeNoti" class="nav-badge" style="display:none"></span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#"
+                           id="perfilDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                            </svg>
+                            @nombre
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="perfilDropdown">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Cliente" asp-action="Perfil">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Z"/>
+                                    </svg>
+                                    Mis datos
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-controller="Cliente" asp-action="CambiarClave">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2Zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/>
+                                    </svg>
+                                    Cambiar contrasena
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,.08)"></li>
+                            <li>
+                                <a class="dropdown-item nav-logout" asp-controller="Autenticacion" asp-action="Logout">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2Z"/>
+                                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3Z"/>
+                                    </svg>
+                                    Cerrar sesion
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- CONTENIDO -->
+<main>
+    @RenderBody()
+</main>
+
+<!-- FOOTER -->
+<footer class="shop-footer">
+    <div class="container">
+        &copy; @DateTime.Now.Year NexusShop &mdash; Todos los derechos reservados.
+    </div>
+</footer>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+@if (idCliente != null)
+{
+    <script>
+        (() => {
+            const badge = document.getElementById("badgeNoti");
+            if (!badge) return;
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("http://localhost:5064/notificacionHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.start()
+                .then(() => { connection.invoke("UnirseCliente", @idCliente); })
+                .catch(err => console.error("SignalR error:", err));
+
+            connection.on("RecibirNotificacion", () => {
+                let count = parseInt(badge.innerText || "0");
+                badge.innerText = count + 1;
+                badge.style.display = "inline-block";
+            });
+        })();
+    </script>
+}
+
+@if (ViewBag.LimpiarBadge == true)
+{
+    <script>
+        const badge = document.getElementById("badgeNoti");
+        if (badge) { badge.innerText = ""; badge.style.display = "none"; }
+    </script>
+}
+
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
