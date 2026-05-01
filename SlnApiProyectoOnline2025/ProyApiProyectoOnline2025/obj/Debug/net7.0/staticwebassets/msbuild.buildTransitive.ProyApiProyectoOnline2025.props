@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\buildMultiTargeting\ProyApiProyectoOnline2025.props" />
-</Project>

@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\buildMultiTargeting\ProyMvcProyectoOnline205.props" />
-</Project>
