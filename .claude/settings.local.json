@@ -54,7 +54,14 @@
       "PowerShell(Get-Process -Name \"ProyApiProyectoOnline2025\",\"ProyMvcProyectoOnline205\",\"dotnet\" -ErrorAction SilentlyContinue)",
       "Bash(git update-index *)",
       "PowerShell(Stop-Process -Id 6688,17620 -Force -ErrorAction SilentlyContinue)",
-      "PowerShell(Get-Process -Name \"ProyApiProyectoOnline2025\",\"ProyMvcProyectoOnline205\" -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-Process -Name \"ProyApiProyectoOnline2025\",\"ProyMvcProyectoOnline205\" -ErrorAction SilentlyContinue)",
+      "Bash(offset 50)",
+      "PowerShell(cd \"c:\\\\Users\\\\Admin\\\\OneDrive\\\\Documents\\\\ProyServicioWeb\\\\SlnMvcProyectoOnline205\\\\ProyMvcProyectoOnline205\"; $out = dotnet build --nologo --verbosity quiet 2>&1 | Out-String; $errs = \\($out -split \"`n\" | Select-String -Pattern \"error \\(CS|RZ\\)\"\\) ; if \\($errs\\) { $errs | Select-Object -First 10 } else { \\($out -split \"`n\" | Select-String \"Errores|Error\\\\\\(s\\\\\\)\"\\) })",
+      "PowerShell(cd \"c:\\\\Users\\\\Admin\\\\OneDrive\\\\Documents\\\\ProyServicioWeb\\\\SlnMvcProyectoOnline205\\\\ProyMvcProyectoOnline205\"; $out = dotnet build --nologo --verbosity quiet 2>&1 | Out-String; \\($out -split \"`n\" | Select-String -Pattern \"error \\(CS|RZ\\)\"\\) | Select-Object -First 5; \"---\"; \\($out -split \"`n\" | Select-String \"Errores|Error\\\\\\(s\\\\\\)\"\\))",
+      "PowerShell(cd \"c:\\\\Users\\\\Admin\\\\OneDrive\\\\Documents\\\\ProyServicioWeb\\\\SlnMvcProyectoOnline205\\\\ProyMvcProyectoOnline205\"; $out = dotnet build --nologo --verbosity normal 2>&1 | Out-String; \\($out -split \"`n\" | Select-String -Pattern \"error \"\\) | Select-Object -First 10)",
+      "PowerShell(Get-Process -Name \"ProyApiProyectoOnline2025\" -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Milliseconds 800; cd \"c:\\\\Users\\\\Admin\\\\OneDrive\\\\Documents\\\\ProyServicioWeb\\\\SlnApiProyectoOnline2025\\\\ProyApiProyectoOnline2025\"; $out = dotnet build --nologo --verbosity quiet 2>&1 | Out-String; \\($out -split \"`n\" | Select-String -Pattern \"error \\(CS|RZ\\)\"\\) | Select-Object -First 10; \"---\"; \\($out -split \"`n\" | Select-String \"Errores|Error\\\\\\(s\\\\\\)\"\\))",
+      "PowerShell(Get-Process -Name \"ProyMvcProyectoOnline205\" -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Milliseconds 800; cd \"c:\\\\Users\\\\Admin\\\\OneDrive\\\\Documents\\\\ProyServicioWeb\\\\SlnMvcProyectoOnline205\\\\ProyMvcProyectoOnline205\"; $out = dotnet build --nologo --verbosity quiet 2>&1 | Out-String; \\($out -split \"`n\" | Select-String -Pattern \"error \\(CS|RZ\\)\"\\) | Select-Object -First 8; \"---\"; \\($out -split \"`n\" | Select-String \"Errores|Error\\\\\\(s\\\\\\)\"\\))",
+      "Bash(git rm *)"
     ],
     "additionalDirectories": [
       "\\tmp"
