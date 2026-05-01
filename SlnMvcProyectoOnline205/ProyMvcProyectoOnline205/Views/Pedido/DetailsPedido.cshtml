@@ -151,13 +151,29 @@ else
                 <form asp-action="CambiarEstadoPedido" method="post" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="idVenta" value="@Model.IdVenta" />
+                    @{
+                        var estadosPedido = new Dictionary<int, string>
+                        {
+                            { 1, "Registrado" },
+                            { 2, "Pagado" },
+                            { 3, "En preparación" },
+                            { 4, "Enviado" },
+                            { 5, "Entregado" },
+                            { 6, "Cancelado" }
+                        };
+                    }
                     <select name="idEstado" class="form-select" style="max-width:220px">
-                        <option value="1" @(Model.IdEstadoPedido == 1 ? "selected" : "")>Registrado</option>
-                        <option value="2" @(Model.IdEstadoPedido == 2 ? "selected" : "")>Pagado</option>
-                        <option value="3" @(Model.IdEstadoPedido == 3 ? "selected" : "")>En preparación</option>
-                        <option value="4" @(Model.IdEstadoPedido == 4 ? "selected" : "")>Enviado</option>
-                        <option value="5" @(Model.IdEstadoPedido == 5 ? "selected" : "")>Entregado</option>
-                        <option value="6" @(Model.IdEstadoPedido == 6 ? "selected" : "")>Cancelado</option>
+                        @foreach (var est in estadosPedido)
+                        {
+                            if (Model.IdEstadoPedido == est.Key)
+                            {
+                                <option value="@est.Key" selected>@est.Value</option>
+                            }
+                            else
+                            {
+                                <option value="@est.Key">@est.Value</option>
+                            }
+                        }
                     </select>
                     <button type="submit" class="app-btn app-btn--primary">Guardar estado</button>
                 </form>

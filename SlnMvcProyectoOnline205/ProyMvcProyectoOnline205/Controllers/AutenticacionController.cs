@@ -34,43 +34,16 @@ namespace ProyMvcProyectoOnline205.Controllers
         {
             using var http = _httpClientFactory.CreateClient();
 
-            // Intentar login como CLIENTE
-            var clienteLogin = new
+            var loginPayload = new
             {
                 Correo = correo,
                 PasswordHash = password
             };
+            var json = JsonConvert.SerializeObject(loginPayload);
 
-            var jsonCliente = JsonConvert.SerializeObject(clienteLogin);
-            var contentCliente = new StringContent(jsonCliente, Encoding.UTF8, "application/json");
-
-            var respCliente = await http.PostAsync(_apiClienteUrl + "Login", contentCliente);
-
-            if (respCliente.IsSuccessStatusCode)
-            {
-                var data = await respCliente.Content.ReadAsStringAsync();
-                var cliente = JsonConvert.DeserializeObject<Cliente>(data);
-
-                HttpContext.Session.SetInt32("IdCliente", cliente!.IdCliente);
-                HttpContext.Session.SetInt32("IdRol", 3);
-                HttpContext.Session.SetString("Nombre", cliente.Nombre!);
-
-                // 🟢 PASO 1: inicializar contadores
-                HttpContext.Session.SetInt32("NotiTickets", 0);
-
-                return RedirectToAction("Index", "Home");
-            }
-
-            // Intentar login como USUARIO (ADMIN)
-            var usuarioLogin = new
-            {
-                Correo = correo,
-                PasswordHash = password
-            };
-
-            var jsonUsuario = JsonConvert.SerializeObject(usuarioLogin);
-            var contentUsuario = new StringContent(jsonUsuario, Encoding.UTF8, "application/json");
-
+            // 1) Intentar primero como USUARIO (ADMIN / staff). Tiene prioridad
+            //    porque un mismo correo puede existir en ambas tablas.
+            var contentUsuario = new StringContent(json, Encoding.UTF8, "application/json");
             var respUsuario = await http.PostAsync(_apiUsuarioUrl + "Login", contentUsuario);
 
             if (respUsuario.IsSuccessStatusCode)
@@ -83,6 +56,23 @@ namespace ProyMvcProyectoOnline205.Controllers
                 HttpContext.Session.SetString("Nombre", usuario.Nombres!);
 
                 return RedirectToAction("Index", "Dashboard");
+            }
+
+            // 2) Fallback: intentar como CLIENTE
+            var contentCliente = new StringContent(json, Encoding.UTF8, "application/json");
+            var respCliente = await http.PostAsync(_apiClienteUrl + "Login", contentCliente);
+
+            if (respCliente.IsSuccessStatusCode)
+            {
+                var data = await respCliente.Content.ReadAsStringAsync();
+                var cliente = JsonConvert.DeserializeObject<Cliente>(data);
+
+                HttpContext.Session.SetInt32("IdCliente", cliente!.IdCliente);
+                HttpContext.Session.SetInt32("IdRol", 3);
+                HttpContext.Session.SetString("Nombre", cliente.Nombre!);
+                HttpContext.Session.SetInt32("NotiTickets", 0);
+
+                return RedirectToAction("Index", "Home");
             }
 
             ViewBag.Error = "Correo o contraseña incorrectos";
