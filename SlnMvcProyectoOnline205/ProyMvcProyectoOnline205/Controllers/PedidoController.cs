@@ -77,6 +77,12 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
 
         // ==============================
+        // ALIAS: /Pedido/IndexAdmin → IndexPedido
+        // (referenciado desde el sidebar y URL directa)
+        // ==============================
+        public Task<IActionResult> IndexAdmin() => IndexPedido();
+
+        // ==============================
         // DETALLE DEL PEDIDO
         // ==============================
         public async Task<IActionResult> DetailsPedido(int id)

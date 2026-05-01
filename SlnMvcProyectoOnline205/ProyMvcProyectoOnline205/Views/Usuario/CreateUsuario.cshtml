@@ -1,39 +1,86 @@
-﻿@model ProyMvcProyectoOnline205.Models.Usuario
+@model ProyMvcProyectoOnline205.Models.Usuario
 
 @{
-    ViewData["Title"] = "Crear Usuario";
+    Layout = "_LayoutAdmin";
+    ViewData["Title"]        = "Nuevo usuario";
+    ViewData["PageTitle"]    = "Registrar usuario";
+    ViewData["PageSubtitle"] = "Crear un administrador o vendedor con acceso al panel.";
+    ViewData["PageCrumbs"]   = new[] { "Personas", "Usuarios", "Nuevo" };
+
+    ViewData["PageActions"] = (Func<object, Microsoft.AspNetCore.Html.IHtmlContent>)(@<text>
+        <a asp-action="IndexUsuario" class="app-btn app-btn--ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Volver a la lista
+        </a>
+    </text>);
 }
 
-<h1>Registrar Usuario</h1>
+<partial name="Admin/_PageHeader" />
 
-<hr />
+<div class="app-card" style="max-width:880px">
+    <div class="app-card__header">Datos del usuario</div>
+    <div class="app-card__body">
 
-<form asp-action="CreateUsuario" method="post">
-    <div class="form-group mb-3">
-        <label asp-for="IdRol"></label>
-        <input asp-for="IdRol" class="form-control" />
+        <form asp-action="CreateUsuario" method="post" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger app-form-help" style="margin-bottom:1rem"></div>
+
+            <div class="row g-3">
+
+                <div class="col-md-6 app-form-group">
+                    <label asp-for="Nombres" class="app-form-label">Nombres</label>
+                    <input asp-for="Nombres" class="form-control" placeholder="Ej. María" />
+                    <span asp-validation-for="Nombres" class="text-danger app-form-help"></span>
+                </div>
+
+                <div class="col-md-6 app-form-group">
+                    <label asp-for="Apellidos" class="app-form-label">Apellidos</label>
+                    <input asp-for="Apellidos" class="form-control" placeholder="Ej. Pérez" />
+                    <span asp-validation-for="Apellidos" class="text-danger app-form-help"></span>
+                </div>
+
+                <div class="col-md-6 app-form-group">
+                    <label asp-for="Correo" class="app-form-label">Correo</label>
+                    <input asp-for="Correo" type="email" class="form-control" placeholder="usuario@dominio.com" />
+                    <span asp-validation-for="Correo" class="text-danger app-form-help"></span>
+                </div>
+
+                <div class="col-md-6 app-form-group">
+                    <label asp-for="PasswordHash" class="app-form-label">Contraseña</label>
+                    <input asp-for="PasswordHash" type="password" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="PasswordHash" class="text-danger app-form-help"></span>
+                </div>
+
+                <div class="col-md-6 app-form-group">
+                    <label asp-for="IdRol" class="app-form-label">Rol</label>
+                    <select asp-for="IdRol" class="form-select">
+                        <option value="">Selecciona un rol…</option>
+                        <option value="1">Administrador</option>
+                        <option value="2">Vendedor</option>
+                    </select>
+                    <span asp-validation-for="IdRol" class="text-danger app-form-help"></span>
+                </div>
+
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.5rem">
+                <a asp-action="IndexUsuario" class="app-btn app-btn--ghost">Cancelar</a>
+                <button type="submit" class="app-btn app-btn--primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Guardar usuario
+                </button>
+            </div>
+
+        </form>
+
     </div>
+</div>
 
-    <div class="form-group mb-3">
-        <label asp-for="Nombres"></label>
-        <input asp-for="Nombres" class="form-control" />
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="Apellidos"></label>
-        <input asp-for="Apellidos" class="form-control" />
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="Correo"></label>
-        <input asp-for="Correo" class="form-control" />
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="PasswordHash"></label>
-        <input asp-for="PasswordHash" class="form-control" type="password" />
-    </div>
-
-    <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-action="IndexUsuario" class="btn btn-secondary">Cancelar</a>
-</form>
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
