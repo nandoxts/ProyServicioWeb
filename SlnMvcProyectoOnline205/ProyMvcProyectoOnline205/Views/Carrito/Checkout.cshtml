@@ -1,0 +1,136 @@
+@model List<ProyMvcProyectoOnline205.Controllers.CarritoItem>
+
+@{
+    Layout = "_LayoutShop";
+    ViewData["Title"] = "Confirmar pedido";
+    var total = Model.Sum(x => x.Subtotal);
+    var items = Model.Sum(x => x.Cantidad);
+    var cliente = ViewBag.Cliente as ProyMvcProyectoOnline205.Models.Cliente;
+}
+
+<div class="container py-4">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-1" style="font-weight:700;color:var(--app-text)">Confirmar pedido</h2>
+            <p class="text-muted mb-0">Revisa los datos antes de finalizar tu compra.</p>
+        </div>
+        <a asp-action="Index" class="app-btn app-btn--ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Volver al carrito
+        </a>
+    </div>
+
+    <form asp-action="Checkout" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-4">
+
+            <!-- Datos de envio + metodo de pago -->
+            <div class="col-lg-7">
+                <div class="app-card">
+                    <div class="app-card__header">Datos de envio</div>
+                    <div class="app-card__body">
+                        <div class="row g-3">
+                            <div class="col-md-6 app-form-group">
+                                <label class="app-form-label">Persona de contacto</label>
+                                <input name="contacto" class="form-control" required
+                                       value="@($"{cliente?.Nombre} {cliente?.Apellidos}".Trim())" />
+                            </div>
+                            <div class="col-md-6 app-form-group">
+                                <label class="app-form-label">Telefono</label>
+                                <input name="telefono" class="form-control" required
+                                       value="@cliente?.Telefono" placeholder="Ej. 999 888 777" />
+                            </div>
+                            <div class="col-md-12 app-form-group">
+                                <label class="app-form-label">Direccion de entrega</label>
+                                <input name="direccion" class="form-control" required
+                                       placeholder="Calle, numero, referencia, distrito" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-card" style="margin-top:1rem">
+                    <div class="app-card__header">Metodo de pago</div>
+                    <div class="app-card__body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label style="display:flex;gap:.6rem;padding:.85rem;border:2px solid var(--app-brand-accent);border-radius:10px;cursor:pointer;background:rgba(99,102,241,.05)">
+                                    <input type="radio" name="metodoPago" value="PayPal" checked />
+                                    <div>
+                                        <div style="font-weight:700">PayPal</div>
+                                        <div class="text-muted" style="font-size:.8rem">Sandbox · auto aprobado</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <label style="display:flex;gap:.6rem;padding:.85rem;border:1px solid var(--app-border);border-radius:10px;cursor:pointer;opacity:.6">
+                                    <input type="radio" name="metodoPago" value="Tarjeta" disabled />
+                                    <div>
+                                        <div style="font-weight:700">Tarjeta de credito</div>
+                                        <div class="text-muted" style="font-size:.8rem">Proximamente</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <p class="app-form-help" style="margin-top:.75rem">
+                            Esta es una simulacion academica. El pago se marca como completado automaticamente.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen del pedido -->
+            <div class="col-lg-5">
+                <div class="app-card" style="position:sticky;top:1rem">
+                    <div class="app-card__header">Tu pedido (@items @(items == 1 ? "articulo" : "articulos"))</div>
+                    <div class="app-card__body" style="padding:0">
+                        @foreach (var item in Model)
+                        {
+                            <div style="display:flex;gap:.85rem;padding:.85rem 1rem;border-bottom:1px solid var(--app-border);align-items:center">
+                                <span style="width:32px;height:32px;border-radius:50%;background:var(--app-surface-alt);color:var(--app-text-muted);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0">
+                                    @item.Cantidad
+                                </span>
+                                <div style="flex:1;min-width:0">
+                                    <div style="font-weight:600;font-size:.9rem">@item.Nombre</div>
+                                    <div class="text-muted" style="font-size:.78rem">S/ @item.Precio.ToString("N2") c/u</div>
+                                </div>
+                                <div style="font-weight:700">S/ @item.Subtotal.ToString("N2")</div>
+                            </div>
+                        }
+                    </div>
+                    <div class="app-card__body">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:.4rem">
+                            <span class="text-muted">Subtotal</span>
+                            <span>S/ @total.ToString("N2")</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:.75rem">
+                            <span class="text-muted">Envio</span>
+                            <span class="app-pill app-pill--success">Gratis</span>
+                        </div>
+                        <hr />
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+                            <span style="font-weight:700">Total</span>
+                            <span style="font-weight:800;font-size:1.4rem;color:var(--app-brand-accent)">S/ @total.ToString("N2")</span>
+                        </div>
+
+                        <button type="submit" class="app-btn app-btn--primary" style="width:100%;justify-content:center">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Confirmar y pagar
+                        </button>
+
+                        <p class="text-muted" style="font-size:.78rem;text-align:center;margin:.75rem 0 0">
+                            Al confirmar se descuenta el stock y se registra el pedido.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>

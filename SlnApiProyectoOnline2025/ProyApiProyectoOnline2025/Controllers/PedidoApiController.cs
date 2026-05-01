@@ -58,6 +58,142 @@ public class PedidoApiController : ControllerBase
         return Ok(pedidos);
     }
 
+    // ============================================================
+    // CREAR PEDIDO (CHECKOUT)
+    // ============================================================
+    public class CrearPedidoItemDto
+    {
+        public int IdProducto { get; set; }
+        public int Cantidad   { get; set; }
+    }
+
+    public class CrearPedidoRequest
+    {
+        public int IdCliente               { get; set; }
+        public string? MetodoPago          { get; set; } = "PayPal";
+        public string? ReferenciaPago      { get; set; }
+        public string? Contacto            { get; set; }
+        public string? Telefono            { get; set; }
+        public string? Direccion           { get; set; }
+        public string? IdDistrito          { get; set; }
+        public List<CrearPedidoItemDto> Items { get; set; } = new();
+    }
+
+    public class CrearPedidoResponse
+    {
+        public int IdVenta        { get; set; }
+        public decimal MontoTotal { get; set; }
+        public int TotalProducto  { get; set; }
+        public string Mensaje     { get; set; } = "";
+    }
+
+    [HttpPost("CrearPedido")]
+    public async Task<ActionResult<CrearPedidoResponse>> CrearPedido([FromBody] CrearPedidoRequest req)
+    {
+        if (req == null || req.Items == null || !req.Items.Any())
+            return BadRequest("El pedido no tiene productos.");
+
+        // Validar cliente
+        var cliente = await db.Clientes.FirstOrDefaultAsync(c => c.IdCliente == req.IdCliente);
+        if (cliente == null) return BadRequest("Cliente no encontrado.");
+
+        // Cargar productos del pedido en una sola consulta
+        var idsProductos = req.Items.Select(i => i.IdProducto).Distinct().ToList();
+        var productos = await db.Productos
+            .Where(p => idsProductos.Contains(p.IdProducto) && p.Activo == true)
+            .ToListAsync();
+
+        if (productos.Count != idsProductos.Count)
+            return BadRequest("Alguno de los productos ya no esta disponible.");
+
+        // Validar stock antes de tocar nada
+        foreach (var item in req.Items)
+        {
+            var p = productos.First(x => x.IdProducto == item.IdProducto);
+            if ((p.Stock ?? 0) < item.Cantidad)
+                return BadRequest($"Stock insuficiente para '{p.Nombre}'. Disponible: {p.Stock ?? 0}, solicitado: {item.Cantidad}.");
+        }
+
+        await using var tx = await db.Database.BeginTransactionAsync();
+        try
+        {
+            decimal monto = 0;
+            int totalUnidades = 0;
+            var detalles = new List<DetalleVentum>();
+
+            foreach (var item in req.Items)
+            {
+                var p = productos.First(x => x.IdProducto == item.IdProducto);
+                var subtotal = (p.Precio ?? 0) * item.Cantidad;
+
+                detalles.Add(new DetalleVentum
+                {
+                    IdProducto = p.IdProducto,
+                    Cantidad   = item.Cantidad,
+                    Total      = subtotal
+                });
+
+                p.Stock = (p.Stock ?? 0) - item.Cantidad; // descuento de stock
+                monto         += subtotal;
+                totalUnidades += item.Cantidad;
+            }
+
+            var venta = new Ventum
+            {
+                IdCliente        = req.IdCliente,
+                MontoTotal       = monto,
+                TotalProducto    = totalUnidades,
+                FechaVenta       = DateTime.Now,
+                IdEstadoPedido   = 1, // Registrado
+                Contacto         = req.Contacto,
+                Telefono         = req.Telefono,
+                Direccion        = req.Direccion,
+                IdDistrito       = req.IdDistrito,
+                IdTransaccion    = req.ReferenciaPago,
+                DetalleVenta     = detalles
+            };
+
+            db.Venta.Add(venta);
+            await db.SaveChangesAsync();
+
+            // Registrar el pago. Para simulacion PayPal sandbox lo damos por completado.
+            bool pagoCompletado = !string.IsNullOrEmpty(req.ReferenciaPago);
+            var pago = new Pago
+            {
+                IdVenta        = venta.IdVenta,
+                MetodoPago     = req.MetodoPago ?? "PayPal",
+                Monto          = monto,
+                Moneda         = "PEN",
+                Estado         = pagoCompletado ? "Completado" : "Pendiente",
+                ReferenciaPago = req.ReferenciaPago,
+                FechaPago      = DateTime.Now
+            };
+            db.Pagos.Add(pago);
+
+            // Si el pago se completo, marcar el pedido como Pagado (estado 2)
+            if (pagoCompletado)
+                venta.IdEstadoPedido = 2;
+
+            await db.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return Ok(new CrearPedidoResponse
+            {
+                IdVenta       = venta.IdVenta,
+                MontoTotal    = monto,
+                TotalProducto = totalUnidades,
+                Mensaje       = pagoCompletado
+                    ? "Pedido registrado y pago completado."
+                    : "Pedido registrado. Pago pendiente."
+            });
+        }
+        catch (Exception ex)
+        {
+            await tx.RollbackAsync();
+            return StatusCode(500, $"Error al registrar el pedido: {ex.Message}");
+        }
+    }
+
     [HttpPut("CambiarEstado")]
     public async Task<IActionResult> CambiarEstado(int idVenta, int idEstado)
     {

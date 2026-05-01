@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProyMvcProyectoOnline205.Models;
+using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 
 namespace ProyMvcProyectoOnline205.Controllers
@@ -10,6 +12,8 @@ namespace ProyMvcProyectoOnline205.Controllers
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string apiProductoUrl = "http://localhost:5064/api/ProductoApi/";
+        private readonly string apiPedidoUrl   = "http://localhost:5064/api/PedidoApi/";
+        private readonly string apiClienteUrl  = "http://localhost:5064/api/ClienteApi/";
 
         public CarritoController(IHttpClientFactory httpClientFactory)
         {
@@ -162,9 +166,9 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
 
         // ============================
-        // CHECKOUT (requiere login de cliente)
+        // CHECKOUT - GET (vista de confirmacion)
         // ============================
-        public IActionResult Checkout()
+        public async Task<IActionResult> Checkout()
         {
             var idCliente = HttpContext.Session.GetInt32("IdCliente");
             var rol       = HttpContext.Session.GetInt32("IdRol");
@@ -182,9 +186,88 @@ namespace ProyMvcProyectoOnline205.Controllers
                 return RedirectToAction("Index");
             }
 
-            // TODO: integracion con PedidoApi para registrar la venta
-            TempData["mensaje"] = "Pago en construccion. (PayPal sandbox)";
-            return RedirectToAction("Index");
+            // Cargar datos del cliente para prellenar el form
+            using var http = _httpClientFactory.CreateClient();
+            try
+            {
+                var resp = await http.GetAsync($"{apiClienteUrl}GetCliente/{idCliente}");
+                if (resp.IsSuccessStatusCode)
+                {
+                    var cli = await resp.Content.ReadFromJsonAsync<Cliente>();
+                    ViewBag.Cliente = cli;
+                }
+            }
+            catch { /* opcional */ }
+
+            return View(cart);
+        }
+
+        // ============================
+        // CHECKOUT - POST (registrar pedido)
+        // ============================
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Checkout(string? contacto, string? telefono, string? direccion, string? metodoPago)
+        {
+            var idCliente = HttpContext.Session.GetInt32("IdCliente");
+            var rol       = HttpContext.Session.GetInt32("IdRol");
+
+            if (idCliente == null || rol != 3)
+            {
+                TempData["mensaje"] = "Inicia sesion como cliente para finalizar tu compra.";
+                return RedirectToAction("Login", "Autenticacion");
+            }
+
+            var cart = GetCart();
+            if (!cart.Any())
+            {
+                TempData["mensaje"] = "Tu carrito esta vacio.";
+                return RedirectToAction("Index");
+            }
+
+            // Construir el pedido
+            var payload = new
+            {
+                IdCliente      = idCliente.Value,
+                MetodoPago     = string.IsNullOrEmpty(metodoPago) ? "PayPal" : metodoPago,
+                ReferenciaPago = $"SBX-{DateTime.Now:yyyyMMddHHmmss}", // sandbox autoaprobado
+                Contacto       = contacto,
+                Telefono       = telefono,
+                Direccion      = direccion,
+                Items          = cart.Select(i => new { i.IdProducto, i.Cantidad }).ToList()
+            };
+
+            using var http = _httpClientFactory.CreateClient();
+            var json    = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage resp;
+            try
+            {
+                resp = await http.PostAsync($"{apiPedidoUrl}CrearPedido", content);
+            }
+            catch (HttpRequestException ex)
+            {
+                TempData["mensaje"] = $"No se pudo contactar el servicio de pedidos: {ex.Message}";
+                return RedirectToAction("Index");
+            }
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                var err = await resp.Content.ReadAsStringAsync();
+                TempData["mensaje"] = $"No se pudo registrar el pedido: {err}";
+                return RedirectToAction("Index");
+            }
+
+            var body = await resp.Content.ReadAsStringAsync();
+            var creado = JsonSerializer.Deserialize<JsonElement>(body);
+            int idVenta = creado.GetProperty("idVenta").GetInt32();
+
+            // Vaciar carrito
+            HttpContext.Session.Remove(CartSessionKey);
+            HttpContext.Session.SetInt32("CarritoCount", 0);
+
+            TempData["mensaje"] = $"Pedido #{idVenta} registrado correctamente. Gracias por tu compra!";
+            return RedirectToAction("DetailsPedido", "Pedido", new { id = idVenta });
         }
     }
 
