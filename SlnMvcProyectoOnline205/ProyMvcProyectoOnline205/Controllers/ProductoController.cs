@@ -8,7 +8,9 @@ namespace ProyMvcProyectoOnline205.Controllers
     public class ProductoController : Controller
     {
         // Se recomienda inyectar HttpClientFactory en lugar de crear HttpClient en cada método
-        private readonly string apiUrl = "http://localhost:5064/api/ProductoApi/";
+        private readonly string apiUrl          = "http://localhost:5064/api/ProductoApi/";
+        private readonly string apiCategoriaUrl = "http://localhost:5064/api/CategoriaApi/";
+        private readonly string apiMarcaUrl     = "http://localhost:5064/api/MarcaApi/";
 
         // ============================
         // TRAER PRODUCTOS
@@ -21,6 +23,38 @@ namespace ProyMvcProyectoOnline205.Controllers
 
             // Usar '?' o manejar el caso de error de deserialización
             return JsonConvert.DeserializeObject<List<Producto>>(data) ?? new List<Producto>();
+        }
+
+        // ============================
+        // CARGAR DROPDOWNS (Marca / Categoria)
+        // ============================
+        private async Task CargarDropdownsAsync()
+        {
+            using var http = new HttpClient();
+
+            try
+            {
+                var respCat = await http.GetAsync(apiCategoriaUrl + "GetCategorias");
+                if (respCat.IsSuccessStatusCode)
+                {
+                    var cats = JsonConvert.DeserializeObject<List<Categorium>>(
+                        await respCat.Content.ReadAsStringAsync()) ?? new List<Categorium>();
+                    ViewBag.Categorias = cats;
+                }
+            }
+            catch { ViewBag.Categorias = new List<Categorium>(); }
+
+            try
+            {
+                var respMar = await http.GetAsync(apiMarcaUrl + "GetMarcas");
+                if (respMar.IsSuccessStatusCode)
+                {
+                    var mars = JsonConvert.DeserializeObject<List<Marca>>(
+                        await respMar.Content.ReadAsStringAsync()) ?? new List<Marca>();
+                    ViewBag.Marcas = mars;
+                }
+            }
+            catch { ViewBag.Marcas = new List<Marca>(); }
         }
 
         // ============================
@@ -46,8 +80,9 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ============================
         // CREATE
         // ============================
-        public IActionResult CreateProducto()
+        public async Task<IActionResult> CreateProducto()
         {
+            await CargarDropdownsAsync();
             return View(new Producto());
         }
 
@@ -72,6 +107,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ============================
         public async Task<IActionResult> EditProducto(int id)
         {
+            await CargarDropdownsAsync();
             using var http = new HttpClient();
             var resp = await http.GetAsync(apiUrl + $"GetProducto/{id}");
             var data = await resp.Content.ReadAsStringAsync();
@@ -126,14 +162,36 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
 
         // ============================
-        // DELETE (lógico)
+        // DELETE (lógico) - GET (vista confirmación)
         // ============================
         public async Task<IActionResult> DeleteProducto(int id)
         {
             using var http = new HttpClient();
+            var resp = await http.GetAsync(apiUrl + $"GetProducto/{id}");
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                TempData["mensaje"] = "No se pudo cargar el producto.";
+                return RedirectToAction(nameof(IndexProducto));
+            }
+
+            var data = await resp.Content.ReadAsStringAsync();
+            return View(JsonConvert.DeserializeObject<Producto>(data));
+        }
+
+        // ============================
+        // DELETE (lógico) - POST (ejecución)
+        // ============================
+        [HttpPost, ActionName("DeleteProducto")]
+        public async Task<IActionResult> DeleteProductoConfirmed(int id)
+        {
+            using var http = new HttpClient();
             var resp = await http.DeleteAsync(apiUrl + $"DeleteProducto/{id}");
 
-            TempData["mensaje"] = await resp.Content.ReadAsStringAsync();
+            TempData["mensaje"] = resp.IsSuccessStatusCode
+                ? "Producto desactivado correctamente."
+                : await resp.Content.ReadAsStringAsync();
+
             return RedirectToAction(nameof(IndexProducto));
         }
     }
