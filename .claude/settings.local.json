@@ -39,7 +39,25 @@
       "Bash(curl -sL -o /tmp/prod.html http://localhost:5140/Producto/IndexProducto)",
       "Bash(curl -sL -o /tmp/usu.html http://localhost:5140/Usuario/IndexUsuario)",
       "Bash(curl -sL http://localhost:5140/Dashboard/Index)",
-      "Bash(curl -sL http://localhost:5140/Ticket/IndexTicket)"
+      "Bash(curl -sL http://localhost:5140/Ticket/IndexTicket)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git stash *)",
+      "Bash(GIT_EDITOR=true git rebase --continue)",
+      "PowerShell($env:GIT_EDITOR=\"true\"; git rebase --continue)",
+      "Bash(git -c core.editor=true -c sequence.editor=true rebase --continue)",
+      "Bash(git rebase *)",
+      "Bash(git fetch *)",
+      "Bash(git reset *)",
+      "PowerShell(Get-Process -Name \"ProyApiProyectoOnline2025\",\"ProyMvcProyectoOnline205\",\"dotnet\" -ErrorAction SilentlyContinue)",
+      "Bash(git update-index *)",
+      "PowerShell(Stop-Process -Id 6688,17620 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process -Name \"ProyApiProyectoOnline2025\",\"ProyMvcProyectoOnline205\" -ErrorAction SilentlyContinue)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   }
 }
