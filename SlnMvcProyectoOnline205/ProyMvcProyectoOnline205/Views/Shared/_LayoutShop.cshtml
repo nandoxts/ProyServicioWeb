@@ -7,6 +7,7 @@
     var nombre    = HttpContextAccessor.HttpContext.Session.GetString("Nombre");
     var notiTickets = HttpContextAccessor.HttpContext.Session.GetInt32("NotiTickets") ?? 0;
     var notiNotif   = HttpContextAccessor.HttpContext.Session.GetInt32("NotiNotificaciones") ?? 0;
+    var carritoCount = HttpContextAccessor.HttpContext.Session.GetInt32("CarritoCount") ?? 0;
 }
 
 <!DOCTYPE html>
@@ -50,6 +51,19 @@
 
                 @if (rol == null)
                 {
+                    <!-- Carrito disponible para anonimos -->
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" asp-controller="Carrito" asp-action="Index">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5ZM5 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm7 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/>
+                            </svg>
+                            Carrito
+                            @if (carritoCount > 0)
+                            {
+                                <span class="nav-badge">@carritoCount</span>
+                            }
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Autenticacion" asp-action="Login">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
@@ -67,6 +81,10 @@
                                 <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5ZM5 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm7 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/>
                             </svg>
                             Carrito
+                            @if (carritoCount > 0)
+                            {
+                                <span class="nav-badge">@carritoCount</span>
+                            }
                         </a>
                     </li>
 

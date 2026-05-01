@@ -1,35 +1,149 @@
-﻿@model ProyMvcProyectoOnline205.Models.Ticket
+@model ProyMvcProyectoOnline205.Models.Ticket
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 
-<h2>Detalle del Ticket</h2>
+@{
+    var rol = HttpContextAccessor.HttpContext?.Session.GetInt32("IdRol");
+    bool esAdmin = rol == 1 || rol == 2;
+    Layout = esAdmin ? "_LayoutAdmin" : "_LayoutShop";
 
-<hr />
+    ViewData["Title"]        = $"Ticket #{Model.IdTicket}";
+    ViewData["PageTitle"]    = $"Ticket #{Model.IdTicket}";
+    ViewData["PageSubtitle"] = Model.Asunto;
+    ViewData["PageCrumbs"]   = new[] { "Soporte", "Tickets", "Detalle" };
 
-<dl class="row">
-    <dt class="col-sm-3">ID</dt>
-    <dd class="col-sm-9">@Model.IdTicket</dd>
+    string EstadoVariant(string? e) => e switch
+    {
+        "Abierto"   => "warning",
+        "Cerrado"   => "success",
+        "Rechazado" => "danger",
+        _            => "info"
+    };
 
-    <dt class="col-sm-3">Asunto</dt>
-    <dd class="col-sm-9">@Model.Asunto</dd>
+    bool puedeResponder = esAdmin && Model.Estado == "Abierto";
 
-    <dt class="col-sm-3">Descripción</dt>
-    <dd class="col-sm-9">@Model.Descripcion</dd>
+    ViewData["PageActions"] = (Func<object, Microsoft.AspNetCore.Html.IHtmlContent>)(@<text>
+        <a asp-action="IndexTicket" class="app-btn app-btn--ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Volver
+        </a>
+        @if (puedeResponder)
+        {
+            <a asp-action="ResponderTicket" asp-route-id="@Model.IdTicket" class="app-btn app-btn--primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+                </svg>
+                Responder
+            </a>
+        }
+    </text>);
 
-    <dt class="col-sm-3">Estado</dt>
-    <dd class="col-sm-9">@Model.Estado</dd>
+    var wrapperClass = esAdmin ? "" : "container py-4";
+}
 
-    <dt class="col-sm-3">Respuesta Admin</dt>
-    <dd class="col-sm-9">@Model.RespuestaAdmin</dd>
+<div class="@wrapperClass">
 
-    <dt class="col-sm-3">Cliente</dt>
-    <dd class="col-sm-9">@Model.IdClienteOrigen</dd>
+    @if (esAdmin)
+    {
+        <partial name="Admin/_PageHeader" />
+    }
+    else
+    {
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h2 class="mb-1" style="font-weight:700;color:var(--app-text)">Ticket #@Model.IdTicket</h2>
+                <p class="text-muted mb-0">@Model.Asunto</p>
+            </div>
+            <a asp-action="IndexTicket" class="app-btn app-btn--ghost">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+                </svg>
+                Volver a mis tickets
+            </a>
+        </div>
+    }
 
-    <dt class="col-sm-3">Usuario Gestión</dt>
-    <dd class="col-sm-9">@Model.IdUsuarioGestion</dd>
+    <div class="row g-4" style="max-width:1100px">
 
-    <dt class="col-sm-3">Fecha</dt>
-    <dd class="col-sm-9">@Model.FechaCreacion</dd>
-</dl>
+        <!-- Conversacion -->
+        <div class="col-lg-8">
 
-<a asp-action="IndexTicket" class="btn btn-secondary">
-    Volver
-</a>
+            <div class="app-card" style="margin-bottom:1rem">
+                <div class="app-card__body">
+                    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem">
+                        <span style="width:36px;height:36px;border-radius:50%;background:var(--app-info-soft);color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-weight:700">C</span>
+                        <div style="flex:1">
+                            <div style="font-weight:700">Cliente #@Model.IdClienteOrigen</div>
+                            <div class="text-muted" style="font-size:.8rem">@Model.FechaCreacion?.ToString("dd/MM/yyyy HH:mm")</div>
+                        </div>
+                        <span class="app-pill">Mensaje original</span>
+                    </div>
+                    <div style="background:var(--app-surface-alt);border-radius:8px;padding:.85rem;white-space:pre-wrap">@Model.Descripcion</div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.RespuestaAdmin))
+            {
+                <div class="app-card" style="margin-bottom:1rem;border-color:var(--app-brand-accent)">
+                    <div class="app-card__body">
+                        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem">
+                            <span style="width:36px;height:36px;border-radius:50%;background:rgba(99,102,241,.12);color:var(--app-brand-accent);display:flex;align-items:center;justify-content:center;font-weight:700">A</span>
+                            <div style="flex:1">
+                                <div style="font-weight:700">Equipo de soporte</div>
+                                <div class="text-muted" style="font-size:.8rem">Usuario #@Model.IdUsuarioGestion</div>
+                            </div>
+                            <span class="app-pill app-pill--brand">Respuesta</span>
+                        </div>
+                        <div style="background:rgba(99,102,241,.05);border-radius:8px;padding:.85rem;white-space:pre-wrap">@Model.RespuestaAdmin</div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="app-card" style="background:var(--app-surface-alt);text-align:center;padding:1.5rem">
+                    <p class="text-muted" style="margin:0">
+                        @(esAdmin ? "Aun no has respondido este ticket." : "Aun no hay respuesta del equipo de soporte.")
+                    </p>
+                </div>
+            }
+
+        </div>
+
+        <!-- Datos -->
+        <div class="col-lg-4">
+            <div class="app-card">
+                <div class="app-card__header">Estado</div>
+                <div class="app-card__body">
+                    <div style="margin-bottom:1rem">
+                        <span class="app-pill app-pill--@EstadoVariant(Model.Estado)" style="font-size:.85rem">@Model.Estado</span>
+                    </div>
+                    <div class="app-form-label">Asunto</div>
+                    <div style="margin-bottom:.75rem">@Model.Asunto</div>
+
+                    <div class="app-form-label">Cliente</div>
+                    <div style="margin-bottom:.75rem">#@Model.IdClienteOrigen</div>
+
+                    @if (Model.IdUsuarioGestion.HasValue)
+                    {
+                        <div class="app-form-label">Atendido por</div>
+                        <div style="margin-bottom:.75rem">Usuario #@Model.IdUsuarioGestion</div>
+                    }
+
+                    <div class="app-form-label">Creado</div>
+                    <div>@Model.FechaCreacion?.ToString("dd/MM/yyyy HH:mm")</div>
+                </div>
+            </div>
+
+            @if (puedeResponder)
+            {
+                <a asp-action="ResponderTicket" asp-route-id="@Model.IdTicket"
+                   class="app-btn app-btn--primary" style="width:100%;justify-content:center;margin-top:1rem">
+                    Responder ticket
+                </a>
+            }
+        </div>
+    </div>
+
+</div>

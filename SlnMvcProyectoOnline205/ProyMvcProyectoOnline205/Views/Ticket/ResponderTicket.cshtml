@@ -1,26 +1,75 @@
-﻿@model ProyMvcProyectoOnline205.Models.Ticket
+@model ProyMvcProyectoOnline205.Models.Ticket
 
 @{
-    ViewData["Title"] = "Responder Ticket";
+    Layout = "_LayoutAdmin";
+    ViewData["Title"]        = "Responder ticket";
+    ViewData["PageTitle"]    = $"Responder ticket #{Model.IdTicket}";
+    ViewData["PageSubtitle"] = Model.Asunto;
+    ViewData["PageCrumbs"]   = new[] { "Soporte", "Tickets", "Responder" };
+
+    ViewData["PageActions"] = (Func<object, Microsoft.AspNetCore.Html.IHtmlContent>)(@<text>
+        <a asp-action="DetailsTicket" asp-route-id="@Model.IdTicket" class="app-btn app-btn--ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Volver al detalle
+        </a>
+    </text>);
 }
 
-<h2>Responder Ticket</h2>
+<partial name="Admin/_PageHeader" />
 
-<form asp-action="ResponderTicket" method="post">
-    <input type="hidden" name="IdTicket" value="@Model.IdTicket" />
-    <div class="alert alert-secondary">
-        <strong>Asunto:</strong> @Model.Asunto <br />
-        <strong>Descripción:</strong> @Model.Descripcion
+<div class="row g-4" style="max-width:1100px">
+
+    <div class="col-lg-7">
+        <div class="app-card">
+            <div class="app-card__header">Tu respuesta</div>
+            <div class="app-card__body">
+
+                <form asp-action="ResponderTicket" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="IdTicket" value="@Model.IdTicket" />
+
+                    <div class="app-form-group">
+                        <label class="app-form-label">Mensaje al cliente</label>
+                        <textarea name="Respuesta" class="form-control" rows="8"
+                                  placeholder="Escribe tu respuesta para el cliente…" required></textarea>
+                        <span class="app-form-help">El cliente recibira esta respuesta y una notificacion en tiempo real.</span>
+                    </div>
+
+                    <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem">
+                        <a asp-action="DetailsTicket" asp-route-id="@Model.IdTicket" class="app-btn app-btn--ghost">Cancelar</a>
+                        <button type="submit" class="app-btn app-btn--success">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            </svg>
+                            Enviar respuesta
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Respuesta</label>
-<textarea name="Respuesta" class="form-control" required></textarea>
+    <div class="col-lg-5">
+        <div class="app-card">
+            <div class="app-card__header">Mensaje del cliente</div>
+            <div class="app-card__body">
+                <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem">
+                    <span style="width:36px;height:36px;border-radius:50%;background:var(--app-info-soft);color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-weight:700">C</span>
+                    <div>
+                        <div style="font-weight:700">Cliente #@Model.IdClienteOrigen</div>
+                        <div class="text-muted" style="font-size:.8rem">@Model.FechaCreacion?.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                </div>
+                <div class="app-form-label">Asunto</div>
+                <div style="margin-bottom:.75rem;font-weight:600">@Model.Asunto</div>
 
+                <div class="app-form-label">Detalle</div>
+                <div style="background:var(--app-surface-alt);border-radius:8px;padding:.85rem;white-space:pre-wrap">@Model.Descripcion</div>
+            </div>
+        </div>
     </div>
 
-
-
-    <button type="submit" class="btn btn-success">Responder</button>
-    <a asp-action="IndexTicket" class="btn btn-secondary">Cancelar</a>
-</form>
+</div>

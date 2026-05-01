@@ -1,34 +1,59 @@
-﻿@model ProyMvcProyectoOnline205.Models.Cliente
+@model ProyMvcProyectoOnline205.Models.Cliente
+
 @{
-    ViewData["Title"] = "Editar perfil";
     Layout = "_LayoutShop";
+    ViewData["Title"] = "Editar perfil";
 }
 
-<h4>✏️ Editar perfil</h4>
+<div class="container py-4">
 
-<form asp-action="EditarPerfil" method="post">
-    @Html.AntiForgeryToken()
-
-    <div class="mb-3">
-        <label class="form-label">Nombre</label>
-        <input asp-for="Nombre" class="form-control" />
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-1" style="font-weight:700;color:var(--app-text)">Editar perfil</h2>
+            <p class="text-muted mb-0">Actualiza tus datos personales.</p>
+        </div>
+        <a asp-action="Perfil" class="app-btn app-btn--ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Volver al perfil
+        </a>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Apellidos</label>
-        <input asp-for="Apellidos" class="form-control" />
-    </div>
+    <div class="app-card" style="max-width:760px">
+        <div class="app-card__body">
+            <form asp-action="EditarPerfil" method="post" novalidate>
+                @Html.AntiForgeryToken()
 
-    <div class="mb-3">
-        <label class="form-label">Correo</label>
-        <input asp-for="Correo" class="form-control" />
-    </div>
+                <div class="row g-3">
+                    <div class="col-md-6 app-form-group">
+                        <label asp-for="Nombre" class="app-form-label">Nombres</label>
+                        <input asp-for="Nombre" class="form-control" />
+                    </div>
+                    <div class="col-md-6 app-form-group">
+                        <label asp-for="Apellidos" class="app-form-label">Apellidos</label>
+                        <input asp-for="Apellidos" class="form-control" />
+                    </div>
+                    <div class="col-md-6 app-form-group">
+                        <label asp-for="Correo" class="app-form-label">Correo</label>
+                        <input asp-for="Correo" type="email" class="form-control" />
+                    </div>
+                    <div class="col-md-6 app-form-group">
+                        <label asp-for="Telefono" class="app-form-label">Telefono</label>
+                        <input asp-for="Telefono" class="form-control" />
+                    </div>
+                </div>
 
-    <div class="mb-3">
-        <label class="form-label">Teléfono</label>
-        <input asp-for="Telefono" class="form-control" />
+                <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.5rem">
+                    <a asp-action="Perfil" class="app-btn app-btn--ghost">Cancelar</a>
+                    <button type="submit" class="app-btn app-btn--primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <button type="submit" class="btn btn-success">💾 Guardar</button>
-    <a asp-action="Perfil" class="btn btn-secondary">Cancelar</a>
-</form>
+</div>
