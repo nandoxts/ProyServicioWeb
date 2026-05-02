@@ -51,13 +51,34 @@ namespace ProyApiProyectoOnline2025.Controllers
         // ============================================================
         // 3) REGISTRAR USUARIO
         // POST: api/UsuarioApi/PostUsuario
+        //
+        // Validaciones:
+        //  • Correo no vacío y formato válido.
+        //  • Correo NO existe en CLIENTE (cross-tabla).
+        //  • Correo NO existe en otro USUARIO activo.
+        //  • Si existe en USUARIO pero inactivo → reactiva.
         // ============================================================
         [HttpPost("PostUsuario")]
         public async Task<ActionResult<string>> PostUsuario([FromBody] Usuario value)
         {
             try
             {
-                // Buscar por correo (dato único)
+                if (string.IsNullOrWhiteSpace(value.Correo))
+                    return BadRequest("El correo es obligatorio.");
+
+                value.Correo = value.Correo.Trim().ToLowerInvariant();
+
+                if (!EsCorreoValido(value.Correo))
+                    return BadRequest("El formato del correo no es válido.");
+
+                // 1) CROSS-TABLA: no puede coexistir en CLIENTE
+                bool enCliente = await db.Clientes
+                    .AnyAsync(c => c.Correo == value.Correo);
+
+                if (enCliente)
+                    return BadRequest("Ese correo ya está registrado como cliente.");
+
+                // 2) Mismo correo en USUARIO
                 var existente = await db.Usuarios
                     .FirstOrDefaultAsync(u => u.Correo == value.Correo);
 
@@ -65,25 +86,23 @@ namespace ProyApiProyectoOnline2025.Controllers
                 {
                     if (existente.Activo == false)
                     {
-                        // 🔥 REACTIVAR USUARIO
-                        existente.Activo = true;
-                        existente.Reestablecer = true;
-                        existente.Nombres = value.Nombres;
-                        existente.Apellidos = value.Apellidos;
-                        existente.IdRol = value.IdRol;
-                        existente.PasswordHash = value.PasswordHash;
+                        existente.Activo        = true;
+                        existente.Reestablecer  = true;
+                        existente.Nombres       = value.Nombres;
+                        existente.Apellidos     = value.Apellidos;
+                        existente.IdRol         = value.IdRol;
+                        existente.PasswordHash  = value.PasswordHash;
 
                         await db.SaveChangesAsync();
-
                         return "Usuario reactivado correctamente.";
                     }
 
-                    return BadRequest("El correo ya está registrado y activo.");
+                    return BadRequest("Ese correo ya está registrado.");
                 }
 
-                // 🆕 NUEVO USUARIO
-                value.Activo = true;
-                value.Reestablecer = false;
+                // 3) Nuevo usuario
+                value.Activo        = true;
+                value.Reestablecer  = false;
                 value.FechaRegistro = DateTime.Now;
 
                 await db.Usuarios.AddAsync(value);
@@ -93,14 +112,25 @@ namespace ProyApiProyectoOnline2025.Controllers
             }
             catch (Exception ex)
             {
-                return "ERROR: " + ex.InnerException?.Message;
+                return "ERROR: " + (ex.InnerException?.Message ?? ex.Message);
             }
+        }
+
+        private static bool EsCorreoValido(string correo)
+        {
+            try { var addr = new System.Net.Mail.MailAddress(correo); return addr.Address == correo; }
+            catch { return false; }
         }
 
 
         // ============================================================
         // 4) ACTUALIZAR DATOS DE USUARIO
         // PUT: api/UsuarioApi/PutUsuario
+        //
+        // Validaciones al cambiar correo:
+        //  • No vacío y formato válido.
+        //  • No usado por OTRO usuario.
+        //  • No usado por NINGÚN cliente (cross-tabla).
         // ============================================================
         [HttpPut("PutUsuario")]
         public async Task<ActionResult<string>> PutUsuario([FromBody] Usuario value)
@@ -112,6 +142,28 @@ namespace ProyApiProyectoOnline2025.Controllers
                 if (buscado == null)
                     return NotFound("Usuario no encontrado");
 
+                if (string.IsNullOrWhiteSpace(value.Correo))
+                    return BadRequest("El correo es obligatorio.");
+
+                value.Correo = value.Correo.Trim().ToLowerInvariant();
+
+                if (!EsCorreoValido(value.Correo))
+                    return BadRequest("El formato del correo no es válido.");
+
+                // ¿Cambió el correo? Solo entonces valida choques
+                if (!string.Equals(buscado.Correo, value.Correo, StringComparison.OrdinalIgnoreCase))
+                {
+                    bool chocaConOtroUsuario = await db.Usuarios
+                        .AnyAsync(u => u.Correo == value.Correo && u.IdUsuario != value.IdUsuario);
+                    if (chocaConOtroUsuario)
+                        return BadRequest("Ese correo ya está usado por otro usuario.");
+
+                    bool chocaConCliente = await db.Clientes
+                        .AnyAsync(c => c.Correo == value.Correo);
+                    if (chocaConCliente)
+                        return BadRequest("Ese correo ya está usado por un cliente.");
+                }
+
                 db.Entry(buscado).State = EntityState.Detached;
                 db.Entry(value).State = EntityState.Modified;
 
@@ -121,7 +173,7 @@ namespace ProyApiProyectoOnline2025.Controllers
             }
             catch (Exception ex)
             {
-                return "ERROR: " + ex.InnerException?.Message;
+                return "ERROR: " + (ex.InnerException?.Message ?? ex.Message);
             }
         }
 

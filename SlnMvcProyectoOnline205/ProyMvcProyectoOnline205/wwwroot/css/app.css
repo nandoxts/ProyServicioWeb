@@ -483,6 +483,27 @@ html { scroll-behavior: smooth; }
 .app-table tbody tr:hover { background: var(--app-surface-alt); }
 
 /* ============================================================
+   12.b FLASH MESSAGES (.admin-flash — alias compartido)
+   ============================================================ */
+.admin-flash {
+    border-radius: var(--app-radius);
+    padding: .8rem 1rem;
+    font-size: .87rem;
+    display: flex;
+    gap: .6rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+}
+.admin-flash--info    { background: var(--app-info-soft);    color: #1d4ed8; border-color: rgba(59,130,246,.2); }
+.admin-flash--success { background: var(--app-success-soft); color: #047857; border-color: rgba(16,185,129,.2); }
+.admin-flash--warning { background: var(--app-warning-soft); color: #92400e; border-color: rgba(245,158,11,.2); }
+.admin-flash--danger  { background: var(--app-danger-soft);  color: #b91c1c; border-color: rgba(239,68,68,.2); }
+.admin-flash__icon  { flex-shrink: 0; line-height: 1; }
+.admin-flash__close { margin-left: auto; background: transparent; border: 0; color: inherit; opacity: .55; cursor: pointer; }
+.admin-flash__close:hover { opacity: 1; }
+
+/* ============================================================
    13. SKELETON (loading)
    ============================================================ */
 .app-skeleton {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using ProyMvcProyectoOnline205.Filters;
 using ProyMvcProyectoOnline205.Models;
 using System.Text;
 
@@ -28,16 +29,18 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
 
         // ============================
-        // listar atodos los pobres 
+        // listar atodos los pobres
         // ============================
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public async Task<IActionResult> IndexCliente()
         {
             return View(await TraerClientes());
         }
 
         // ============================
-        // detallar alos pobres 
+        // detallar alos pobres
         // ============================
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public async Task<IActionResult> DetailsCliente(int id)
         {
             await TraerClientes();
@@ -50,6 +53,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ============================
         // CREATE - GET
         // ============================
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public IActionResult CreateCliente()
         {
             return View(new Cliente());
@@ -60,6 +64,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ============================
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public async Task<IActionResult> CreateCliente(Cliente obj)
         {
             try
@@ -90,6 +95,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ============================
         // EDIT - GET
         // ============================
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public async Task<IActionResult> EditCliente(int id)
         {
             await TraerClientes();
@@ -103,7 +109,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ============================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [HttpPost]
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public async Task<IActionResult> EditCliente(Cliente obj)
         {
             // 1️⃣ TRAER EL CLIENTE COMPLETO ACTUAL DESDE EL API
@@ -141,6 +147,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ============================
         // DELETE (LÓGICO)
         // ============================
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public async Task<IActionResult> DeleteCliente(int id)
         {
             using (var http = new HttpClient())
@@ -152,6 +159,7 @@ namespace ProyMvcProyectoOnline205.Controllers
 
             return RedirectToAction(nameof(IndexCliente));
         }
+        [RoleAuthorize(Roles.Cliente)]
         public async Task<IActionResult> Perfil()
         {
             var idCliente = HttpContext.Session.GetInt32("IdCliente");
@@ -173,6 +181,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         //
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize(Roles.Cliente)]
         public async Task<IActionResult> Perfil(Cliente model)
         {
             var idCliente = HttpContext.Session.GetInt32("IdCliente");
@@ -210,6 +219,7 @@ namespace ProyMvcProyectoOnline205.Controllers
 
             return RedirectToAction(nameof(Perfil));
         }
+        [RoleAuthorize(Roles.Cliente)]
         public async Task<IActionResult> EditarPerfil()
         {
             var idCliente = HttpContext.Session.GetInt32("IdCliente");
@@ -230,6 +240,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize(Roles.Cliente)]
         public async Task<IActionResult> EditarPerfil(Cliente model)
         {
             var idCliente = HttpContext.Session.GetInt32("IdCliente");
@@ -266,6 +277,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
 
         ///
+        [RoleAuthorize(Roles.Cliente)]
         public IActionResult CambiarClave()
         {
             var idCliente = HttpContext.Session.GetInt32("IdCliente");
@@ -276,6 +288,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize(Roles.Cliente)]
         public async Task<IActionResult> CambiarClave(CambiarClaveViewModel model)
         {
             var idCliente = HttpContext.Session.GetInt32("IdCliente");

@@ -12,17 +12,21 @@
         1 => "info",    2 => "success", 3 => "warning",
         4 => "brand",   5 => "success", 6 => "danger",  _ => ""
     };
+
+    // KPIs
+    var total       = Model.Count;
+    var enCurso     = Model.Count(p => p.IdEstadoPedido != null && p.IdEstadoPedido >= 2 && p.IdEstadoPedido <= 4);
+    var entregados  = Model.Count(p => p.IdEstadoPedido == 5);
+    var totalGastado = Model.Sum(p => p.MontoTotal ?? 0);
 }
 
 <div class="container py-4">
 
     <!-- Encabezado -->
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
-            <h2 style="font-size:1.5rem;font-weight:700;margin:0">Mis pedidos</h2>
-            <p style="color:var(--app-text-muted);font-size:.875rem;margin:.2rem 0 0">
-                Historial de compras realizadas.
-            </p>
+            <h2 class="mb-1" style="font-weight:700;color:var(--app-text)">Mis pedidos</h2>
+            <p class="text-muted mb-0">Historial de compras realizadas.</p>
         </div>
         @if (Model.Any())
         {
@@ -31,7 +35,7 @@
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Descargar PDF
+                Descargar todos (PDF)
             </a>
         }
     </div>
@@ -60,46 +64,154 @@
     }
     else
     {
-        <div class="admin-table-wrap">
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th style="width:80px">Pedido</th>
-                            <th>Fecha</th>
-                            <th class="col-money">Total</th>
-                            <th>Estado</th>
-                            <th class="col-actions">Detalle</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var p in Model)
-                    {
-                        <tr>
-                            <td class="col-id">#@p.IdVenta</td>
-                            <td class="u-text-muted">@p.FechaVenta?.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td class="col-money" style="color:var(--app-success);font-weight:700">
-                                S/ @p.MontoTotal?.ToString("N2")
-                            </td>
-                            <td>
-                                <partial name="Components/_StatusPill" model='new {
-                                    variant = EstadoVariant(p.IdEstadoPedido),
-                                    text    = EstadoLabel(p.IdEstadoPedido)
-                                }' />
-                            </td>
-                            <td class="col-actions">
-                                <a class="app-btn app-btn--ghost" asp-action="DetailsPedido" asp-route-id="@p.IdVenta" title="Ver detalle">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                    </svg>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
+        <!-- KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="app-card" style="height:100%">
+                    <div class="app-card__body" style="padding:1rem 1.1rem">
+                        <div class="u-text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Pedidos</div>
+                        <div style="font-size:1.6rem;font-weight:800;line-height:1;margin-top:.35rem">@total</div>
+                    </div>
+                </div>
             </div>
+            <div class="col-6 col-md-3">
+                <div class="app-card" style="height:100%">
+                    <div class="app-card__body" style="padding:1rem 1.1rem">
+                        <div class="u-text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600">En curso</div>
+                        <div style="font-size:1.6rem;font-weight:800;line-height:1;margin-top:.35rem;color:var(--app-warning)">@enCurso</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="app-card" style="height:100%">
+                    <div class="app-card__body" style="padding:1rem 1.1rem">
+                        <div class="u-text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Entregados</div>
+                        <div style="font-size:1.6rem;font-weight:800;line-height:1;margin-top:.35rem;color:var(--app-success)">@entregados</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="app-card" style="height:100%">
+                    <div class="app-card__body" style="padding:1rem 1.1rem">
+                        <div class="u-text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Total gastado</div>
+                        <div style="font-size:1.35rem;font-weight:800;line-height:1;margin-top:.35rem;color:var(--app-text)">S/ @totalGastado.ToString("N2")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buscador -->
+        <div class="app-card" style="margin-bottom:1rem">
+            <div class="app-card__body" style="padding:.75rem 1rem">
+                <div style="position:relative">
+                    <svg style="position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--app-text-light)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="search" id="pedidoSearch" class="form-control" placeholder="Buscar por número, fecha o estado…" style="padding-left:2.25rem" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de pedidos -->
+        <div id="pedidosList" style="display:flex;flex-direction:column;gap:.75rem">
+            @foreach (var p in Model)
+            {
+                var variant   = EstadoVariant(p.IdEstadoPedido);
+                var estLabel  = EstadoLabel(p.IdEstadoPedido);
+                var iconBg    = variant switch {
+                    "success" => "var(--app-success-soft)",
+                    "warning" => "var(--app-warning-soft)",
+                    "danger"  => "var(--app-danger-soft)",
+                    "brand"   => "rgba(99,102,241,.12)",
+                    _         => "var(--app-info-soft)"
+                };
+                var iconColor = variant switch {
+                    "success" => "#047857",
+                    "warning" => "#92400e",
+                    "danger"  => "#b91c1c",
+                    "brand"   => "var(--app-brand-accent)",
+                    _         => "#1d4ed8"
+                };
+                var lineas = p.DetalleVenta?.Count ?? 0;
+
+                <a asp-action="DetailsPedido" asp-route-id="@p.IdVenta"
+                   class="app-card pedido-card"
+                   style="text-decoration:none;color:inherit;display:block">
+                    <div class="app-card__body" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+
+                        <!-- Icono -->
+                        <div style="width:46px;height:46px;border-radius:10px;background:@iconBg;color:@iconColor;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m7.5 4.27 9 5.15"/><path d="M21 8 12 13 3 8"/><path d="M3 8v8l9 5 9-5V8"/>
+                            </svg>
+                        </div>
+
+                        <!-- Info principal -->
+                        <div style="flex:1;min-width:200px">
+                            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.2rem">
+                                <span style="font-weight:700;color:var(--app-text);font-size:1rem">Pedido #@p.IdVenta</span>
+                                @if (lineas > 0)
+                                {
+                                    <span style="color:var(--app-border)">·</span>
+                                    <span style="font-size:.8rem;color:var(--app-text-muted)">@lineas @(lineas == 1 ? "producto" : "productos")</span>
+                                }
+                            </div>
+                            <div style="display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;color:var(--app-text-muted)">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                @p.FechaVenta?.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div style="text-align:right;min-width:120px">
+                            <div class="u-text-muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Total</div>
+                            <div style="font-size:1.15rem;font-weight:800;color:var(--app-success);line-height:1.2">
+                                S/ @p.MontoTotal?.ToString("N2")
+                            </div>
+                        </div>
+
+                        <!-- Estado + chevron -->
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.5rem;min-width:120px">
+                            <partial name="Components/_StatusPill" model='new {
+                                variant = variant,
+                                text    = estLabel
+                            }' />
+                            <span style="display:inline-flex;align-items:center;gap:.25rem;font-size:.75rem;color:var(--app-text-light);font-weight:600">
+                                Ver detalle
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            }
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.getElementById('pedidoSearch');
+            if (!input) return;
+            var cards = document.querySelectorAll('#pedidosList .pedido-card');
+            input.addEventListener('input', function () {
+                var q = input.value.trim().toLowerCase();
+                cards.forEach(function (c) {
+                    c.style.display = c.textContent.toLowerCase().includes(q) ? '' : 'none';
+                });
+            });
+        })();
+    </script>
+    <style>
+        .pedido-card { transition: var(--app-transition); }
+        .pedido-card:hover {
+            border-color: var(--app-brand-accent2);
+            transform: translateY(-1px);
+            box-shadow: var(--app-shadow-md);
+        }
+    </style>
+}

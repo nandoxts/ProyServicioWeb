@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProyMvcProyectoOnline205.Filters;
 using ProyMvcProyectoOnline205.Models;
 using System.Text;
 
 namespace ProyMvcProyectoOnline205.Controllers
 {
+    [RoleAuthorize(Roles.Admin, Roles.Vendedor, Roles.Cliente)] // Mixto: cliente o staff
     public class NotificacionController : Controller
     {
         private readonly IConfiguration _configuration;

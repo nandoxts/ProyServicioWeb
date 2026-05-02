@@ -50,17 +50,37 @@ namespace ProyApiProyectoOnline2025.Controllers
         // ===========================================
         // 3) REGISTRAR CLIENTE
         // POST: api/ClienteApi/PostCliente
+        //
+        // Validaciones:
+        //  • Correo no vacío y formato válido.
+        //  • Correo NO existe en USUARIO (cross-tabla).
+        //  • Correo NO existe en otro CLIENTE activo.
+        //  • Si existe en CLIENTE pero inactivo → reactiva.
         // ===========================================
         [HttpPost("PostCliente")]
         public async Task<ActionResult<string>> PostCliente([FromBody] Cliente value)
         {
             try
             {
-                // Buscar cliente por correo (dato único natural)
+                if (string.IsNullOrWhiteSpace(value.Correo))
+                    return BadRequest("El correo es obligatorio.");
+
+                value.Correo = value.Correo.Trim().ToLowerInvariant();
+
+                if (!EsCorreoValido(value.Correo))
+                    return BadRequest("El formato del correo no es válido.");
+
+                // 1) CROSS-TABLA: no puede coexistir en USUARIO (admin/empleado)
+                bool enUsuario = await db.Usuarios
+                    .AnyAsync(u => u.Correo == value.Correo);
+
+                if (enUsuario)
+                    return BadRequest("Ese correo ya está registrado como personal interno.");
+
+                // 2) Mismo correo en CLIENTE
                 var existente = await db.Clientes
                     .FirstOrDefaultAsync(c => c.Correo == value.Correo);
 
-                // Si NO existe → Registrar normal
                 if (existente == null)
                 {
                     value.Activo = true;
@@ -72,33 +92,44 @@ namespace ProyApiProyectoOnline2025.Controllers
                     return $"Cliente {value.Nombre} registrado correctamente.";
                 }
 
-                // Si existe pero está desactivado → REACTIVAR
+                // 3) Existe pero inactivo → reactivar
                 if (existente.Activo == false)
                 {
-                    existente.Nombre = value.Nombre;
-                    existente.Apellidos = value.Apellidos;
-                    existente.Telefono = value.Telefono;
-                    existente.PasswordHash = value.PasswordHash;
-                    existente.Reestablecer = false;
-                    existente.Activo = true;
+                    existente.Nombre        = value.Nombre;
+                    existente.Apellidos     = value.Apellidos;
+                    existente.Telefono      = value.Telefono;
+                    existente.PasswordHash  = value.PasswordHash;
+                    existente.Reestablecer  = false;
+                    existente.Activo        = true;
 
                     await db.SaveChangesAsync();
-
                     return $"Cliente reactivado: {existente.Nombre}";
                 }
 
-                // Si ya existe y está activo → Error
-                return BadRequest("El correo ya está registrado en un cliente activo.");
+                // 4) Ya existe y está activo
+                return BadRequest("Ese correo ya está registrado.");
             }
             catch (Exception ex)
             {
-                return "ERROR: " + ex.InnerException?.Message;
+                return "ERROR: " + (ex.InnerException?.Message ?? ex.Message);
             }
-        }   
+        }
+
+        // Helper local para validar formato. Evita dependencia de DataAnnotations.
+        private static bool EsCorreoValido(string correo)
+        {
+            try { var addr = new System.Net.Mail.MailAddress(correo); return addr.Address == correo; }
+            catch { return false; }
+        }
 
         // ===========================================
         // 4) ACTUALIZAR DATOS DE CLIENTE
         // PUT: api/ClienteApi/PutCliente
+        //
+        // Validaciones al cambiar correo:
+        //  • No vacío y formato válido.
+        //  • No usado por OTRO cliente (mismo IdCliente puede mantener su correo).
+        //  • No usado por NINGÚN usuario (cross-tabla).
         // ===========================================
         [HttpPut("PutCliente")]
         public async Task<ActionResult<string>> PutCliente([FromBody] Cliente value)
@@ -110,6 +141,28 @@ namespace ProyApiProyectoOnline2025.Controllers
                 if (buscado == null)
                     return NotFound("Cliente no encontrado");
 
+                if (string.IsNullOrWhiteSpace(value.Correo))
+                    return BadRequest("El correo es obligatorio.");
+
+                value.Correo = value.Correo.Trim().ToLowerInvariant();
+
+                if (!EsCorreoValido(value.Correo))
+                    return BadRequest("El formato del correo no es válido.");
+
+                // ¿Cambió de correo? Solo entonces valida choques
+                if (!string.Equals(buscado.Correo, value.Correo, StringComparison.OrdinalIgnoreCase))
+                {
+                    bool chocaConOtroCliente = await db.Clientes
+                        .AnyAsync(c => c.Correo == value.Correo && c.IdCliente != value.IdCliente);
+                    if (chocaConOtroCliente)
+                        return BadRequest("Ese correo ya está usado por otro cliente.");
+
+                    bool chocaConUsuario = await db.Usuarios
+                        .AnyAsync(u => u.Correo == value.Correo);
+                    if (chocaConUsuario)
+                        return BadRequest("Ese correo ya está usado por personal interno.");
+                }
+
                 db.Entry(buscado).State = EntityState.Detached;
                 db.Entry(value).State = EntityState.Modified;
 
@@ -119,7 +172,7 @@ namespace ProyApiProyectoOnline2025.Controllers
             }
             catch (Exception ex)
             {
-                return "ERROR: " + ex.InnerException?.Message;
+                return "ERROR: " + (ex.InnerException?.Message ?? ex.Message);
             }
         }
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ProyMvcProyectoOnline205.Filters;
 using ProyMvcProyectoOnline205.Models;
 using System.Net.Http.Json;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Text.Json;
 
 namespace ProyMvcProyectoOnline205.Controllers
 {
+    [BlockRoles(Roles.Admin, Roles.Vendedor)] // Carrito = anónimo + cliente; staff fuera
     public class CarritoController : Controller
     {
         private const string CartSessionKey = "Carrito";

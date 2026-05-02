@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProyMvcProyectoOnline205.Filters;
 using System.Text;
 using System.Text.Json;
 using ProyMvcProyectoOnline205.Models; // Asumiendo que Ticket, TicketResponseRequest están aquí
 
 namespace ProyMvcProyectoOnline205.Controllers
 {
+    [RoleAuthorize(Roles.Admin, Roles.Vendedor, Roles.Cliente)] // Cualquier usuario logueado
     public class TicketController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -91,6 +93,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ==================================================
         // CREAR TICKET (CLIENTE)
         // ==================================================
+        [RoleAuthorize(Roles.Cliente)]
         public IActionResult CreateTicket()
         {
             return View(new Ticket());
@@ -98,6 +101,7 @@ namespace ProyMvcProyectoOnline205.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize(Roles.Cliente)]
         public async Task<IActionResult> CreateTicket(Ticket obj)
         {
             // 🔵 NUEVO: asignar cliente desde sesión
@@ -131,6 +135,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ==================================================
         // RESPONDER TICKET (ADMIN)
         // ==================================================
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public async Task<IActionResult> ResponderTicket(int id)
         {
             // Lógica de carga del ticket original (igual que Details)
@@ -148,6 +153,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public async Task<IActionResult> ResponderTicket(TicketResponseRequest req)
         {
             // 🔐 NUEVO: asignar el admin desde la sesión
@@ -177,6 +183,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ==================================================
         // CERRAR TICKET (ADMIN)
         // ==================================================
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
         public async Task<IActionResult> CerrarTicket(int id)
         {
             using var http = GetHttpClient();

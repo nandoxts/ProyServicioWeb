@@ -15,81 +15,183 @@
             Volver a la lista
         </a>
     </text>);
+
+    var iniciales = string.Concat(
+        ((Model.Nombres ?? "?") + " " + (Model.Apellidos ?? "?"))
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Take(2).Select(p => p[0])).ToUpperInvariant();
+
+    string RolLabel(int? id) => id switch {
+        1 => "Administrador",
+        2 => "Vendedor",
+        _ => "—"
+    };
 }
 
 <partial name="Admin/_PageHeader" />
 
-<div class="app-card" style="max-width:880px">
-    <div class="app-card__header">Datos del usuario · #@Model.IdUsuario</div>
-    <div class="app-card__body">
+<form asp-action="EditUsuario" method="post" novalidate>
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="IdUsuario" />
+    <input type="hidden" asp-for="PasswordHash" />
+    <input type="hidden" asp-for="Reestablecer" />
+    <input type="hidden" asp-for="FechaRegistro" />
 
-        <form asp-action="EditUsuario" method="post" novalidate>
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="IdUsuario" />
-            <input type="hidden" asp-for="PasswordHash" />
-            <input type="hidden" asp-for="Reestablecer" />
-            <input type="hidden" asp-for="FechaRegistro" />
+    <div asp-validation-summary="ModelOnly" class="admin-flash admin-flash--danger" style="margin-bottom:1rem"></div>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger app-form-help" style="margin-bottom:1rem"></div>
+    <div class="row g-4" style="max-width:1100px">
 
-            <div class="row g-3">
+        <!-- ════════ COLUMNA IZQUIERDA: Identidad ════════ -->
+        <div class="col-lg-4">
 
-                <div class="col-md-6 app-form-group">
-                    <label asp-for="Nombres" class="app-form-label">Nombres</label>
-                    <input asp-for="Nombres" class="form-control" />
-                    <span asp-validation-for="Nombres" class="text-danger app-form-help"></span>
-                </div>
-
-                <div class="col-md-6 app-form-group">
-                    <label asp-for="Apellidos" class="app-form-label">Apellidos</label>
-                    <input asp-for="Apellidos" class="form-control" />
-                    <span asp-validation-for="Apellidos" class="text-danger app-form-help"></span>
-                </div>
-
-                <div class="col-md-6 app-form-group">
-                    <label asp-for="Correo" class="app-form-label">Correo</label>
-                    <input asp-for="Correo" type="email" class="form-control" />
-                    <span asp-validation-for="Correo" class="text-danger app-form-help"></span>
-                </div>
-
-                <div class="col-md-6 app-form-group">
-                    <label asp-for="IdRol" class="app-form-label">Rol</label>
-                    <select asp-for="IdRol" class="form-select">
-                        <option value="1">Administrador</option>
-                        <option value="2">Vendedor</option>
-                    </select>
-                    <span asp-validation-for="IdRol" class="text-danger app-form-help"></span>
-                </div>
-
-                <div class="col-md-6 app-form-group">
-                    <label class="app-form-label">Estado</label>
-                    <div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .85rem;border:1px solid var(--app-border);border-radius:8px;background:var(--app-surface-alt)">
-                        <input asp-for="Activo" class="form-check-input" type="checkbox" style="margin:0" />
-                        <span class="app-form-help" style="margin:0">Usuario activo (puede iniciar sesión)</span>
+            <div class="app-card" style="margin-bottom:1rem">
+                <div class="app-card__body" style="text-align:center">
+                    <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--app-brand-accent),var(--app-brand-accent2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800;margin:0 auto 1rem;box-shadow:var(--app-shadow-md)">
+                        @iniciales
+                    </div>
+                    <h4 style="font-weight:700;margin:.25rem 0;color:var(--app-text)">@Model.Nombres @Model.Apellidos</h4>
+                    <p class="u-text-muted" style="margin-bottom:.75rem;font-size:.85rem">@Model.Correo</p>
+                    <div style="display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap">
+                        <span class="app-pill app-pill--brand">@RolLabel(Model.IdRol)</span>
+                        @if (Model.Activo == true)
+                        {
+                            <span class="app-pill app-pill--success">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="app-pill app-pill--danger">Inactivo</span>
+                        }
                     </div>
                 </div>
-
-                <div class="col-md-6 app-form-group">
-                    <label class="app-form-label">Fecha de registro</label>
-                    <input value="@Model.FechaRegistro?.ToString("dd/MM/yyyy HH:mm")" class="form-control" readonly />
+                <div class="app-card__footer">
+                    <div style="display:flex;justify-content:space-between;font-size:.8rem">
+                        <span class="u-text-muted">ID</span>
+                        <span style="font-weight:700">#@Model.IdUsuario</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-top:.4rem">
+                        <span class="u-text-muted">Registrado</span>
+                        <span style="font-weight:600">@Model.FechaRegistro?.ToString("dd/MM/yyyy")</span>
+                    </div>
                 </div>
-
             </div>
 
-            <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.5rem">
-                <a asp-action="IndexUsuario" class="app-btn app-btn--ghost">Cancelar</a>
-                <button type="submit" class="app-btn app-btn--primary">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    Guardar cambios
-                </button>
+            <div class="app-card" style="background:var(--app-surface-alt)">
+                <div class="app-card__body">
+                    <div style="display:flex;gap:.6rem;align-items:flex-start">
+                        <span style="width:32px;height:32px;border-radius:8px;background:var(--app-info-soft);color:#1d4ed8;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        </span>
+                        <div style="font-size:.82rem;line-height:1.5">
+                            <div style="font-weight:700;margin-bottom:.15rem">Sobre la contraseña</div>
+                            <div class="u-text-muted">
+                                La contraseña no se modifica desde aquí. Usa la opción de restablecer en la lista de usuarios.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════ COLUMNA DERECHA: Formulario ════════ -->
+        <div class="col-lg-8">
+
+            <!-- Datos personales -->
+            <div class="app-card" style="margin-bottom:1rem">
+                <div class="app-card__header">
+                    <span style="display:inline-flex;align-items:center;gap:.5rem">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Datos personales
+                    </span>
+                </div>
+                <div class="app-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6 app-form-group" style="margin-bottom:0">
+                            <label asp-for="Nombres" class="app-form-label">Nombres</label>
+                            <input asp-for="Nombres" class="form-control" placeholder="Nombre del usuario" />
+                            <span asp-validation-for="Nombres" class="text-danger app-form-help"></span>
+                        </div>
+
+                        <div class="col-md-6 app-form-group" style="margin-bottom:0">
+                            <label asp-for="Apellidos" class="app-form-label">Apellidos</label>
+                            <input asp-for="Apellidos" class="form-control" placeholder="Apellidos del usuario" />
+                            <span asp-validation-for="Apellidos" class="text-danger app-form-help"></span>
+                        </div>
+
+                        <div class="col-md-12 app-form-group" style="margin-bottom:0">
+                            <label asp-for="Correo" class="app-form-label">Correo electrónico</label>
+                            <input asp-for="Correo" type="email" class="form-control" placeholder="correo@empresa.com" />
+                            <span asp-validation-for="Correo" class="text-danger app-form-help"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-        </form>
+            <!-- Acceso y permisos -->
+            <div class="app-card" style="margin-bottom:1rem">
+                <div class="app-card__header">
+                    <span style="display:inline-flex;align-items:center;gap:.5rem">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        Acceso y permisos
+                    </span>
+                </div>
+                <div class="app-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-6 app-form-group" style="margin-bottom:0">
+                            <label asp-for="IdRol" class="app-form-label">Rol del sistema</label>
+                            <select asp-for="IdRol" class="form-select">
+                                <option value="1">Administrador</option>
+                                <option value="2">Vendedor</option>
+                            </select>
+                            <span asp-validation-for="IdRol" class="text-danger app-form-help"></span>
+                            <span class="app-form-help">Define qué módulos puede usar el usuario.</span>
+                        </div>
 
+                        <div class="col-md-6 app-form-group" style="margin-bottom:0">
+                            <label class="app-form-label">Fecha de registro</label>
+                            <input value="@Model.FechaRegistro?.ToString("dd/MM/yyyy HH:mm")" class="form-control" readonly />
+                            <span class="app-form-help">No editable.</span>
+                        </div>
+
+                        <div class="col-md-12 app-form-group" style="margin-bottom:0">
+                            <label class="app-form-label">Estado de la cuenta</label>
+                            <label style="display:flex;align-items:center;gap:.85rem;padding:.85rem 1rem;border:1px solid var(--app-border);border-radius:var(--app-radius);background:var(--app-surface-alt);cursor:pointer">
+                                @* asp-for emite el checkbox + un hidden 'false' en el orden correcto
+                                   para que el binding de bool? funcione tanto marcado como desmarcado. *@
+                                <input asp-for="Activo" type="checkbox" class="form-check-input" style="margin:0;width:18px;height:18px;cursor:pointer" />
+                                <div style="flex:1">
+                                    <div style="font-weight:600;color:var(--app-text)">Usuario activo</div>
+                                    <div class="u-text-muted" style="font-size:.8rem">Si se desactiva, no podrá iniciar sesión en el sistema.</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="app-card">
+                <div class="app-card__body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem">
+                    <span class="u-text-muted" style="font-size:.85rem">
+                        Los cambios se aplicarán inmediatamente al guardar.
+                    </span>
+                    <div style="display:flex;gap:.5rem">
+                        <a asp-action="IndexUsuario" class="app-btn app-btn--ghost">Cancelar</a>
+                        <button type="submit" class="app-btn app-btn--primary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Guardar cambios
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</form>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }

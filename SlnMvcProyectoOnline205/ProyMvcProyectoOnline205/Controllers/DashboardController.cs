@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using ProyMvcProyectoOnline205.Filters;
 using ProyMvcProyectoOnline205.Models;
 using System.Text.Json;
 
 namespace ProyMvcProyectoOnline205.Controllers
 {
+    [RoleAuthorize(Roles.Admin, Roles.Vendedor)] // Panel administrativo
     public class DashboardController : Controller
     {
         private readonly IHttpClientFactory _http;

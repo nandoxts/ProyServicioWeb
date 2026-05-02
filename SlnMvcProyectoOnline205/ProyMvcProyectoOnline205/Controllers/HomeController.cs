@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProyMvcProyectoOnline205.Filters;
 using ProyMvcProyectoOnline205.Models;
 using System.Net.Http;
 using System.Text.Json;
@@ -25,9 +26,15 @@ namespace ProyMvcProyectoOnline205.Controllers
             _config = config;
         }
         public async Task<IActionResult> Index(int? idCategoria, int? idMarca, string? q)
-        {// ==============================
-         // 🔔 CARGAR NOTIFICACIONES (CLIENTE)
-         // ==============================
+        {
+            // Staff (admin/vendedor) NO tiene nada que hacer en el catálogo público.
+            var rol = HttpContext.Session.GetInt32("IdRol");
+            if (rol == Roles.Admin || rol == Roles.Vendedor)
+                return RedirectToAction("Index", "Dashboard");
+
+            // ==============================
+            // 🔔 CARGAR NOTIFICACIONES (CLIENTE)
+            // ==============================
             int? idCliente = HttpContext.Session.GetInt32("IdCliente");
 /*
             if (idCliente != null)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using ProyMvcProyectoOnline205.Filters;
 using ProyMvcProyectoOnline205.Models;
 using System.Text;
 
@@ -21,8 +22,10 @@ namespace ProyMvcProyectoOnline205.Controllers
         // =========================
         // LOGIN (GET)
         // =========================
-        public IActionResult Login()
+        [RequireAnonymous]
+        public IActionResult Login(string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
@@ -30,7 +33,8 @@ namespace ProyMvcProyectoOnline205.Controllers
         // LOGIN (POST)
         // =========================
         [HttpPost]
-        public async Task<IActionResult> Login(string correo, string password)
+        [RequireAnonymous]
+        public async Task<IActionResult> Login(string correo, string password, string? returnUrl = null)
         {
             using var http = _httpClientFactory.CreateClient();
 
@@ -51,10 +55,21 @@ namespace ProyMvcProyectoOnline205.Controllers
                 var data = await respUsuario.Content.ReadAsStringAsync();
                 var usuario = JsonConvert.DeserializeObject<Usuario>(data);
 
-                HttpContext.Session.SetInt32("IdUsuario", usuario!.IdUsuario);
-                HttpContext.Session.SetInt32("IdRol", usuario.IdRol);
-                HttpContext.Session.SetString("Nombre", usuario.Nombres!);
+                // Salvaguarda: si por algún motivo el API devuelve un rol no soportado,
+                // no permitimos crear una sesión inconsistente.
+                if (usuario!.IdRol != Roles.Admin && usuario.IdRol != Roles.Vendedor)
+                {
+                    ViewBag.Error = "Tu cuenta no tiene un rol válido. Contacta al administrador.";
+                    ViewBag.ReturnUrl = returnUrl;
+                    return View();
+                }
 
+                HttpContext.Session.SetInt32("IdUsuario", usuario.IdUsuario);
+                HttpContext.Session.SetInt32("IdRol", usuario.IdRol);
+                HttpContext.Session.SetString("Nombre", usuario.Nombres ?? "");
+                HttpContext.Session.SetString("Correo", usuario.Correo ?? correo);
+
+                // Staff siempre va al panel — ignora returnUrl si apunta a tienda.
                 return RedirectToAction("Index", "Dashboard");
             }
 
@@ -68,20 +83,26 @@ namespace ProyMvcProyectoOnline205.Controllers
                 var cliente = JsonConvert.DeserializeObject<Cliente>(data);
 
                 HttpContext.Session.SetInt32("IdCliente", cliente!.IdCliente);
-                HttpContext.Session.SetInt32("IdRol", 3);
-                HttpContext.Session.SetString("Nombre", cliente.Nombre!);
+                HttpContext.Session.SetInt32("IdRol", Roles.Cliente);
+                HttpContext.Session.SetString("Nombre", cliente.Nombre ?? "");
+                HttpContext.Session.SetString("Correo", cliente.Correo ?? correo);
                 HttpContext.Session.SetInt32("NotiTickets", 0);
+
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
 
                 return RedirectToAction("Index", "Home");
             }
 
             ViewBag.Error = "Correo o contraseña incorrectos";
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
         // =========================
         // REGISTRO CLIENTE (GET)
         // =========================
+        [RequireAnonymous]
         public IActionResult Registro()
         {
             return View(new Cliente());
@@ -91,6 +112,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // REGISTRO CLIENTE (POST)
         // =========================
         [HttpPost]
+        [RequireAnonymous]
         public async Task<IActionResult> Registro(Cliente obj)
         {
             using var http = _httpClientFactory.CreateClient();
@@ -118,7 +140,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Autenticacion");
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using ProyMvcProyectoOnline205.Filters;
 using ProyMvcProyectoOnline205.Models;
 using System.Text;
 
 namespace ProyMvcProyectoOnline205.Controllers
 {
+    [RoleAuthorize(Roles.Admin, Roles.Vendedor)] // CRUD de productos: solo staff
     public class ProductoController : Controller
     {
         // Se recomienda inyectar HttpClientFactory en lugar de crear HttpClient en cada método

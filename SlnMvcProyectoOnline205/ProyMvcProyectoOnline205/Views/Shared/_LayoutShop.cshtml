@@ -8,6 +8,13 @@
     var notiTickets = HttpContextAccessor.HttpContext.Session.GetInt32("NotiTickets") ?? 0;
     var notiNotif   = HttpContextAccessor.HttpContext.Session.GetInt32("NotiNotificaciones") ?? 0;
     var carritoCount = HttpContextAccessor.HttpContext.Session.GetInt32("CarritoCount") ?? 0;
+
+    bool esAdmin = rol == 1 || rol == 2;
+    string rolLabel = rol switch {
+        1 => "Administrador",
+        2 => "Vendedor",
+        _ => ""
+    };
 }
 
 <!DOCTYPE html>

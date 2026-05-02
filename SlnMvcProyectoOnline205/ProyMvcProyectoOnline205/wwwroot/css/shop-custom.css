@@ -48,6 +48,101 @@ body {
 .shop-topbar a { color: #94a3b8; text-decoration: none; }
 .shop-topbar a:hover { color: #fff; }
 
+/* ── STAFF BAR (admin/vendedor en vista pública) ───────── */
+.staff-bar {
+    background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+    color: #fff;
+    font-size: .8rem;
+    padding: .45rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    position: sticky;
+    top: 0;
+    z-index: 1040;
+}
+.staff-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.staff-bar__left {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+.staff-bar__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 0 3px rgba(52,211,153,.25);
+    animation: staff-pulse 1.8s ease-in-out infinite;
+}
+@keyframes staff-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .55; }
+}
+.staff-bar__sep  { opacity: .4; }
+.staff-bar__hint { opacity: .85; }
+.staff-bar__right {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    flex-wrap: wrap;
+}
+.staff-bar__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .3rem .7rem;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.18);
+    transition: var(--transition);
+    line-height: 1;
+}
+.staff-bar__btn:hover {
+    background: rgba(255,255,255,.2);
+    color: #fff;
+    border-color: rgba(255,255,255,.3);
+}
+.staff-bar__btn--primary {
+    background: #fff;
+    color: #4f46e5;
+    border-color: #fff;
+}
+.staff-bar__btn--primary:hover {
+    background: #f8fafc;
+    color: #4338ca;
+}
+/* Cuando hay staff bar, navbar deja de estar sticky para no apilarse mal */
+.staff-bar + .shop-navbar { top: auto; }
+
+/* Identificador staff dentro del navbar */
+.nav-staff {
+    display: inline-flex !important;
+    align-items: center;
+    gap: .5rem;
+}
+.nav-staff__badge {
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    padding: .15rem .45rem;
+    border-radius: 4px;
+    background: rgba(99,102,241,.25);
+    color: #c7d2fe;
+    border: 1px solid rgba(99,102,241,.4);
+    line-height: 1.4;
+}
+
 /* ── NAVBAR ─────────────────────────────────────────────── */
 .shop-navbar {
     background: var(--brand-mid);

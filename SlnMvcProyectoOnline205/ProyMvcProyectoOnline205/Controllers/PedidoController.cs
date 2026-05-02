@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProyMvcProyectoOnline205.Filters;
 using ProyMvcProyectoOnline205.Models;
 using System.Text.Json;
 using Rotativa.AspNetCore;
@@ -7,6 +8,7 @@ using System.Net.Http;
 
 namespace ProyMvcProyectoOnline205.Controllers
 {
+    [RoleAuthorize(Roles.Admin, Roles.Vendedor, Roles.Cliente)] // Cualquier usuario logueado
     public class PedidoController : Controller
     {
         private readonly IHttpClientFactory _http;
@@ -216,6 +218,7 @@ namespace ProyMvcProyectoOnline205.Controllers
 
         }
         [HttpPost]
+        [RoleAuthorize(Roles.Admin, Roles.Vendedor)] // Solo staff cambia estados
         public async Task<IActionResult> CambiarEstadoPedido(int idVenta, int idEstado)
         {
             var client = _http.CreateClient();

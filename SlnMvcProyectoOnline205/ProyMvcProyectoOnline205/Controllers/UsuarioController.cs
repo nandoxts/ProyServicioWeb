@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using ProyMvcProyectoOnline205.Filters;
 using ProyMvcProyectoOnline205.Models;
 using System.Text;
 
 namespace ProyMvcProyectoOnline205.Controllers
 {
+    [RoleAuthorize(Roles.Admin)] // Solo el Administrador gestiona staff
     public class UsuarioController : Controller
     {
         // Usamos IHttpClientFactory para manejar la creación y ciclo de vida de HttpClient.
