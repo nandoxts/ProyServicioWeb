@@ -32,10 +32,10 @@
 
 <form asp-action="EditUsuario" method="post" novalidate>
     @Html.AntiForgeryToken()
+    @* Solo enviamos el ID. PasswordHash y FechaRegistro se preservan en el API
+       desde la BD para no exponer credenciales en el HTML. Reestablecer no aplica
+       a esta pantalla — se gestiona desde "Resetear contraseña". *@
     <input type="hidden" asp-for="IdUsuario" />
-    <input type="hidden" asp-for="PasswordHash" />
-    <input type="hidden" asp-for="Reestablecer" />
-    <input type="hidden" asp-for="FechaRegistro" />
 
     <div asp-validation-summary="ModelOnly" class="admin-flash admin-flash--danger" style="margin-bottom:1rem"></div>
 
@@ -159,9 +159,14 @@
                         <div class="col-md-12 app-form-group" style="margin-bottom:0">
                             <label class="app-form-label">Estado de la cuenta</label>
                             <label style="display:flex;align-items:center;gap:.85rem;padding:.85rem 1rem;border:1px solid var(--app-border);border-radius:var(--app-radius);background:var(--app-surface-alt);cursor:pointer">
-                                @* asp-for emite el checkbox + un hidden 'false' en el orden correcto
-                                   para que el binding de bool? funcione tanto marcado como desmarcado. *@
-                                <input asp-for="Activo" type="checkbox" class="form-check-input" style="margin:0;width:18px;height:18px;cursor:pointer" />
+                                @* IMPORTANTE: el checkbox va PRIMERO y el hidden DESPUÉS.
+                                   Si el checkbox está marcado, el form envía "true,false" → el binder
+                                   toma el primer valor ("true"). Si no está marcado, solo llega "false". *@
+                                <input type="checkbox" id="Activo" name="Activo" value="true"
+                                       class="form-check-input"
+                                       checked="@(Model.Activo == true ? "checked" : null)"
+                                       style="margin:0;width:18px;height:18px;cursor:pointer" />
+                                <input type="hidden" name="Activo" value="false" />
                                 <div style="flex:1">
                                     <div style="font-weight:600;color:var(--app-text)">Usuario activo</div>
                                     <div class="u-text-muted" style="font-size:.8rem">Si se desactiva, no podrá iniciar sesión en el sistema.</div>

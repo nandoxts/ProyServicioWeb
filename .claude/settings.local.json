@@ -66,7 +66,8 @@
       "Bash(sqlcmd -S \"localhost\\\\MSSQLSERVER2022\" -U sa -P sql -d proyectodiciembre2025 -C -Q \"UPDATE USUARIO SET Activo = 1 WHERE Correo = 'admin@test.com'; SELECT u.IdUsuario, u.Correo, u.IdRol, r.Descripcion AS Rol, u.Activo FROM USUARIO u LEFT JOIN ROL r ON r.IdRol = u.IdRol;\" -h -1 -W)",
       "Bash(sqlcmd -S \"localhost\\\\MSSQLSERVER2022\" -U sa -P sql -d proyectodiciembre2025 -C -Q \"WITH todos AS \\(SELECT Correo, 'USUARIO' AS Tabla FROM USUARIO UNION ALL SELECT Correo, 'CLIENTE' FROM CLIENTE\\) SELECT Correo, COUNT\\(*\\) AS Veces, STRING_AGG\\(Tabla, ', '\\) AS Tablas FROM todos GROUP BY Correo HAVING COUNT\\(*\\) > 1;\" -h -1 -W)",
       "Bash(sqlcmd -S \"localhost\\\\MSSQLSERVER2022\" -U sa -P sql -d proyectodiciembre2025 -C -Q \"SELECT 'USUARIO' AS Tabla, IdUsuario AS Id, Correo, Nombres + ' ' + ISNULL\\(Apellidos,''\\) AS Nombre, Activo FROM USUARIO WHERE Correo = 'admin@test.com' UNION ALL SELECT 'CLIENTE', IdCliente, Correo, Nombre + ' ' + ISNULL\\(Apellidos,''\\), Activo FROM CLIENTE WHERE Correo = 'admin@test.com';\" -h -1 -W)",
-      "Bash(sqlcmd -S 'localhost\\\\MSSQLSERVER2022' -U sa -P sql -d proyectodiciembre2025 -C -Q ' *)"
+      "Bash(sqlcmd -S 'localhost\\\\MSSQLSERVER2022' -U sa -P sql -d proyectodiciembre2025 -C -Q ' *)",
+      "Bash(sqlcmd -S \"localhost\\\\MSSQLSERVER2022\" -U sa -P sql -d proyectodiciembre2025 -C -Q \"UPDATE USUARIO SET Activo = 1 WHERE Correo = 'admin@test.com'; SELECT IdUsuario, Correo, IdRol, Activo FROM USUARIO;\" -h -1 -W)"
     ],
     "additionalDirectories": [
       "\\tmp"

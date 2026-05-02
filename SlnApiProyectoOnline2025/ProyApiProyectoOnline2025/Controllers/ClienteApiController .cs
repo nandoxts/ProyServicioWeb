@@ -163,6 +163,10 @@ namespace ProyApiProyectoOnline2025.Controllers
                         return BadRequest("Ese correo ya está usado por personal interno.");
                 }
 
+                // Preservar campos sensibles desde BD (no confiar en el cliente).
+                value.PasswordHash  = buscado.PasswordHash;
+                value.FechaRegistro = buscado.FechaRegistro;
+
                 db.Entry(buscado).State = EntityState.Detached;
                 db.Entry(value).State = EntityState.Modified;
 

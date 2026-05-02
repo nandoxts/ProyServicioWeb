@@ -139,33 +139,67 @@ namespace ProyMvcProyectoOnline205.Controllers
         // EDIT - POST
         // =========================
         [HttpPost]
-        [ValidateAntiForgeryToken] // Buena práctica de seguridad
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUsuario(Usuario obj)
         {
             if (!ModelState.IsValid)
-            {
                 return View(obj);
-            }
 
+            var idUsuarioActual = HttpContext.Session.GetInt32("IdUsuario");
             using var http = GetHttpClient();
 
+            // 1) PROTECCIÓN: Si te estás editando A TI MISMO, no puedes
+            //    desactivarte ni quitarte el rol de admin (te quedarías sin acceso).
+            if (idUsuarioActual == obj.IdUsuario)
+            {
+                if (obj.Activo == false)
+                {
+                    TempData["error"] = "No puedes desactivar tu propia cuenta.";
+                    return View(obj);
+                }
+                if (obj.IdRol != Roles.Admin)
+                {
+                    TempData["error"] = "No puedes quitarte a ti mismo el rol de administrador.";
+                    return View(obj);
+                }
+            }
+
+            // 2) PROTECCIÓN: Si la edición deja al sistema sin ningún admin activo, bloquear.
+            //    (admin → vendedor, o admin → inactivo, siendo el último admin activo)
+            var todos = await TraerUsuarios();
+            var original = todos.FirstOrDefault(u => u.IdUsuario == obj.IdUsuario);
+            bool eraAdminActivo = original?.IdRol == Roles.Admin && original?.Activo == true;
+            bool dejaDeSerAdminActivo =
+                eraAdminActivo && (obj.IdRol != Roles.Admin || obj.Activo != true);
+
+            if (dejaDeSerAdminActivo)
+            {
+                int otrosAdminsActivos = todos.Count(u =>
+                    u.IdUsuario != obj.IdUsuario &&
+                    u.IdRol == Roles.Admin &&
+                    u.Activo == true);
+
+                if (otrosAdminsActivos == 0)
+                {
+                    TempData["error"] = "No puedes dejar al sistema sin un administrador activo.";
+                    return View(obj);
+                }
+            }
+
+            // 3) Enviar al API (que ya valida correo duplicado y preserva campos sensibles)
             var json = JsonConvert.SerializeObject(obj);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-
             var resp = await http.PutAsync(_baseApiUrl + "PutUsuario", content);
 
-            // MEJORA: Manejo explícito de la respuesta de la API
             if (resp.IsSuccessStatusCode)
             {
-                TempData["mensaje"] = "Usuario actualizado exitosamente.";
+                TempData["success"] = "Usuario actualizado correctamente.";
                 return RedirectToAction(nameof(IndexUsuario));
             }
-            else
-            {
-                var errorContent = await resp.Content.ReadAsStringAsync();
-                TempData["mensaje"] = $"Error al actualizar el usuario: {errorContent}";
-                return View(obj);
-            }
+
+            var errorContent = await resp.Content.ReadAsStringAsync();
+            TempData["error"] = $"Error al actualizar el usuario: {errorContent}";
+            return View(obj);
         }
 
         // =========================
@@ -192,22 +226,46 @@ namespace ProyMvcProyectoOnline205.Controllers
         // DELETE (lógico) - EJECUCIÓN (POST)
         // =========================
         [HttpPost, ActionName("DeleteUsuario")]
-        [ValidateAntiForgeryToken] // Buena práctica de seguridad
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            using var http = GetHttpClient();
+            var idUsuarioActual = HttpContext.Session.GetInt32("IdUsuario");
 
+            // PROTECCIÓN 1: no autoeliminarse
+            if (idUsuarioActual == id)
+            {
+                TempData["error"] = "No puedes eliminar tu propia cuenta.";
+                return RedirectToAction(nameof(IndexUsuario));
+            }
+
+            // PROTECCIÓN 2: no dejar al sistema sin admins activos
+            var todos = await TraerUsuarios();
+            var objetivo = todos.FirstOrDefault(u => u.IdUsuario == id);
+            if (objetivo?.IdRol == Roles.Admin && objetivo?.Activo == true)
+            {
+                int otrosAdminsActivos = todos.Count(u =>
+                    u.IdUsuario != id &&
+                    u.IdRol == Roles.Admin &&
+                    u.Activo == true);
+
+                if (otrosAdminsActivos == 0)
+                {
+                    TempData["error"] = "No puedes eliminar al último administrador activo.";
+                    return RedirectToAction(nameof(IndexUsuario));
+                }
+            }
+
+            using var http = GetHttpClient();
             var resp = await http.DeleteAsync(_baseApiUrl + $"DeleteUsuario/{id}");
 
-            // MEJORA: Manejo explícito de la respuesta de la API
             if (resp.IsSuccessStatusCode)
             {
-                TempData["mensaje"] = "Usuario eliminado (lógicamente) exitosamente.";
+                TempData["success"] = "Usuario desactivado correctamente.";
             }
             else
             {
                 var errorContent = await resp.Content.ReadAsStringAsync();
-                TempData["mensaje"] = $"Error al eliminar el usuario: {errorContent}";
+                TempData["error"] = $"Error al eliminar el usuario: {errorContent}";
             }
 
             return RedirectToAction(nameof(IndexUsuario));
