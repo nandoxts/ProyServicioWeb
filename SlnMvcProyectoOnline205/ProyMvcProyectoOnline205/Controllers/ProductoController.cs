@@ -60,11 +60,13 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
 
         // ============================
-        // INDEX
+        // INDEX (paginado)
         // ============================
-        public async Task<IActionResult> IndexProducto()
+        public async Task<IActionResult> IndexProducto(int page = 1, int pageSize = 10)
         {
-            return View(await TraerProductos());
+            var todos = await TraerProductos();
+            var paged = PagedList<Producto>.Create(todos, page, pageSize);
+            return View(paged);
         }
 
         // ============================

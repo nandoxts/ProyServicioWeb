@@ -22,7 +22,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ==============================
         // LISTAR PEDIDOS (CLIENTE / ADMIN)
         // ==============================
-        public async Task<IActionResult> IndexPedido()
+        public async Task<IActionResult> IndexPedido(int page = 1, int pageSize = 10)
         {
             var rol = HttpContext.Session.GetInt32("IdRol");
 
@@ -57,22 +57,25 @@ namespace ProyMvcProyectoOnline205.Controllers
             }
 
             // ------------------------------
-            // ADMIN / EMPLEADO → TODOS
+            // ADMIN / EMPLEADO → TODOS (paginado)
             // ------------------------------
             if (rol == 1 || rol == 2)
             {
                 var resp = await http.GetAsync($"{apiUrl}GetPedidos");
                 if (!resp.IsSuccessStatusCode)
                 {
-                    return View("IndexAdmin", new List<Ventum>());
+                    return View("IndexAdmin", PagedList<Ventum>.Create(new List<Ventum>(), page, pageSize));
                 }
 
                 var pedidos = await resp.Content
                     .ReadFromJsonAsync<List<Ventum>>()
                     ?? new List<Ventum>();
 
-                return View("IndexAdmin", pedidos);
+                // Mas recientes primero para que la paginacion sea util
+                var ordenados = pedidos.OrderByDescending(p => p.FechaVenta).ToList();
+                var paged = PagedList<Ventum>.Create(ordenados, page, pageSize);
 
+                return View("IndexAdmin", paged);
             }
 
             return RedirectToAction("Login", "Autenticacion");
@@ -82,7 +85,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // ALIAS: /Pedido/IndexAdmin → IndexPedido
         // (referenciado desde el sidebar y URL directa)
         // ==============================
-        public Task<IActionResult> IndexAdmin() => IndexPedido();
+        public Task<IActionResult> IndexAdmin(int page = 1, int pageSize = 10) => IndexPedido(page, pageSize);
 
         // ==============================
         // DETALLE DEL PEDIDO

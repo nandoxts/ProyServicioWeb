@@ -72,7 +72,9 @@
       "Bash(sqlcmd -S \"localhost\\\\MSSQLSERVER2022\" -U sa -P sql -d proyectodiciembre2025 -C -i parse_test.sql)",
       "Bash(sqlcmd -S \"localhost\\\\MSSQLSERVER2022\" -U sa -P sql -d proyectodiciembre2025 -C -i \"c:\\\\\\\\Users\\\\\\\\Admin\\\\\\\\OneDrive\\\\\\\\Documents\\\\\\\\ProyServicioWeb\\\\\\\\Procedimiento alamacenados para el proyecto 2025 parte 3 actualizadosql.sql\")",
       "PowerShell($file = \"C:\\\\Users\\\\Admin\\\\OneDrive\\\\Documents\\\\ProyServicioWeb\\\\Procedimiento alamacenados para el proyecto 2025 parte 3 actualizadosql.sql\"; $bytes = [System.IO.File]::ReadAllBytes\\($file\\); $text = [System.Text.Encoding]::Default.GetString\\($bytes\\); Write-Host \"Encoding: Default \\(CP1252\\). Length:\" $text.Length; $count = \\([regex]::Matches\\($text, \"[ ]\"\\)\\).Count; Write-Host \"Caracteres NBSP encontrados: $count\")",
-      "Bash(sqlcmd -S \"localhost\\\\MSSQLSERVER2022\" -U sa -P sql -d proyectodiciembre2025 -C -Q \"SELECT IdProducto, Nombre, RutaImagen, NombreImagen FROM PRODUCTO;\" -h -1 -W)"
+      "Bash(sqlcmd -S \"localhost\\\\MSSQLSERVER2022\" -U sa -P sql -d proyectodiciembre2025 -C -Q \"SELECT IdProducto, Nombre, RutaImagen, NombreImagen FROM PRODUCTO;\" -h -1 -W)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Admin\\\\OneDrive\\\\Documents\\\\ProyServicioWeb\\\\SlnMvcProyectoOnline205\\\\ProyMvcProyectoOnline205\" -Directory)",
+      "Bash(Select-Object Name)"
     ],
     "additionalDirectories": [
       "\\tmp"

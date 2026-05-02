@@ -1,0 +1,119 @@
+@*
+    Componente: _Pagination
+    --------------------------------------------------------------
+    Partial reutilizable de paginacion.
+    Conserva los demas parametros de la URL actual (busqueda, filtros, etc.)
+    y solo reemplaza/agrega "page".
+
+    Uso:
+        <partial name="Components/_Pagination" model='new {
+            page       = Model.PageNumber,
+            totalPages = Model.TotalPages,
+            totalItems = Model.TotalItems,
+            pageSize   = Model.PageSize
+        }' />
+*@
+
+@model dynamic
+
+@{
+    int page       = 1;
+    int totalPages = 1;
+    int totalItems = 0;
+    int pageSize   = 10;
+
+    try { page       = (int)Model.page; }       catch {}
+    try { totalPages = (int)Model.totalPages; } catch {}
+    try { totalItems = (int)Model.totalItems; } catch {}
+    try { pageSize   = (int)Model.pageSize; }   catch {}
+
+    if (totalPages <= 1) { return; }
+
+    string BuildUrl(int p)
+    {
+        var qs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var kv in Context.Request.Query)
+        {
+            qs[kv.Key] = kv.Value.ToString();
+        }
+        qs["page"] = p.ToString();
+        var path = Context.Request.Path.Value ?? "/";
+        var query = string.Join("&", qs.Select(k =>
+            Uri.EscapeDataString(k.Key) + "=" + Uri.EscapeDataString(k.Value)));
+        return path + "?" + query;
+    }
+
+    int window = 2;
+    int from = Math.Max(1, page - window);
+    int to   = Math.Min(totalPages, page + window);
+
+    int first = (page - 1) * pageSize + 1;
+    int last  = Math.Min(page * pageSize, totalItems);
+}
+
+<nav class="app-pagination" aria-label="Paginacion">
+    <div class="app-pagination__info">
+        Mostrando <strong>@first</strong>&ndash;<strong>@last</strong> de <strong>@totalItems</strong>
+    </div>
+    <ul class="app-pagination__list">
+        <li>
+            @if (page <= 1)
+            {
+                <span class="app-pagination__btn is-disabled" aria-disabled="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </span>
+            }
+            else
+            {
+                <a class="app-pagination__btn" href="@BuildUrl(page - 1)" aria-label="Anterior">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </a>
+            }
+        </li>
+
+        @if (from > 1)
+        {
+            <li><a class="app-pagination__btn" href="@BuildUrl(1)">1</a></li>
+            if (from > 2)
+            {
+                <li><span class="app-pagination__dots">&hellip;</span></li>
+            }
+        }
+
+        @for (int i = from; i <= to; i++)
+        {
+            if (i == page)
+            {
+                <li><span class="app-pagination__btn is-active" aria-current="page">@i</span></li>
+            }
+            else
+            {
+                <li><a class="app-pagination__btn" href="@BuildUrl(i)">@i</a></li>
+            }
+        }
+
+        @if (to < totalPages)
+        {
+            if (to < totalPages - 1)
+            {
+                <li><span class="app-pagination__dots">&hellip;</span></li>
+            }
+            <li><a class="app-pagination__btn" href="@BuildUrl(totalPages)">@totalPages</a></li>
+        }
+
+        <li>
+            @if (page >= totalPages)
+            {
+                <span class="app-pagination__btn is-disabled" aria-disabled="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+            }
+            else
+            {
+                <a class="app-pagination__btn" href="@BuildUrl(page + 1)" aria-label="Siguiente">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            }
+        </li>
+    </ul>
+</nav>

@@ -1,4 +1,4 @@
-@model IEnumerable<ProyMvcProyectoOnline205.Models.Cliente>
+@model ProyMvcProyectoOnline205.Models.PagedList<ProyMvcProyectoOnline205.Models.Cliente>
 
 @{
     Layout = "_LayoutAdmin";
@@ -25,9 +25,9 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input type="search" id="clientesSearch" placeholder="Buscar por nombre o correo…" />
+            <input type="search" id="clientesSearch" placeholder="Buscar en esta página…" />
         </div>
-        <span class="app-pill">@Model.Count() registros</span>
+        <span class="app-pill">@Model.TotalItems registros</span>
     </div>
 
     <div class="table-responsive">
@@ -44,7 +44,7 @@
                 </tr>
             </thead>
             <tbody>
-            @if (!Model.Any())
+            @if (!Model.Items.Any())
             {
                 <partial name="Components/_EmptyRow" model='new {
                     colspan = 7,
@@ -54,7 +54,7 @@
             }
             else
             {
-                foreach (var item in Model)
+                foreach (var item in Model.Items)
                 {
                     var iniciales = string.Concat(
                         ((item.Nombre ?? "?") + " " + (item.Apellidos ?? "?"))
@@ -91,6 +91,13 @@
             </tbody>
         </table>
     </div>
+
+    <partial name="Components/_Pagination" model='new {
+        page       = Model.PageNumber,
+        totalPages = Model.TotalPages,
+        totalItems = Model.TotalItems,
+        pageSize   = Model.PageSize
+    }' />
 </div>
 
 @section Scripts {

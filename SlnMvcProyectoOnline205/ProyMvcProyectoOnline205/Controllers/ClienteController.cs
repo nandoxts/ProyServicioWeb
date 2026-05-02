@@ -32,9 +32,11 @@ namespace ProyMvcProyectoOnline205.Controllers
         // listar atodos los pobres
         // ============================
         [RoleAuthorize(Roles.Admin, Roles.Vendedor)]
-        public async Task<IActionResult> IndexCliente()
+        public async Task<IActionResult> IndexCliente(int page = 1, int pageSize = 10)
         {
-            return View(await TraerClientes());
+            var todos = await TraerClientes();
+            var paged = PagedList<Cliente>.Create(todos, page, pageSize);
+            return View(paged);
         }
 
         // ============================

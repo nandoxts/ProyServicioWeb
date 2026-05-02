@@ -44,11 +44,13 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
 
         // =========================
-        // INDEX
+        // INDEX (paginado)
         // =========================
-        public async Task<IActionResult> IndexUsuario()
+        public async Task<IActionResult> IndexUsuario(int page = 1, int pageSize = 10)
         {
-            return View(await TraerUsuarios());
+            var todos = await TraerUsuarios();
+            var paged = PagedList<Usuario>.Create(todos, page, pageSize);
+            return View(paged);
         }
 
         // =========================
