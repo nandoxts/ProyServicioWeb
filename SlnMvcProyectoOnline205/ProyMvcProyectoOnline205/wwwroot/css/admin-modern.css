@@ -539,83 +539,6 @@
 }
 
 /* ============================================================
-   9.5  PAGINATION (reutilizable)
-   ============================================================ */
-.app-pagination {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .75rem;
-    padding: .75rem 1rem;
-    border-top: 1px solid var(--app-border);
-    background: var(--app-surface-alt);
-    flex-wrap: wrap;
-}
-.app-pagination__info {
-    font-size: .8rem;
-    color: var(--app-text-muted);
-}
-.app-pagination__info strong {
-    color: var(--app-text);
-    font-weight: 600;
-}
-.app-pagination__list {
-    display: flex;
-    align-items: center;
-    gap: .25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-.app-pagination__btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 32px;
-    height: 32px;
-    padding: 0 .55rem;
-    border-radius: 6px;
-    border: 1px solid var(--app-border);
-    background: var(--admin-surface);
-    color: var(--app-text);
-    font-size: .82rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background .15s ease, border-color .15s ease, color .15s ease;
-    cursor: pointer;
-}
-.app-pagination__btn:hover {
-    background: var(--app-surface-alt);
-    border-color: var(--app-brand-accent2);
-    color: var(--app-brand-accent2);
-}
-.app-pagination__btn.is-active {
-    background: var(--app-brand-accent2);
-    border-color: var(--app-brand-accent2);
-    color: #fff;
-    cursor: default;
-}
-.app-pagination__btn.is-disabled {
-    opacity: .45;
-    pointer-events: none;
-    cursor: not-allowed;
-}
-.app-pagination__dots {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    color: var(--app-text-muted);
-    font-size: .85rem;
-    user-select: none;
-}
-@media (max-width: 540px) {
-    .app-pagination { flex-direction: column; align-items: stretch; }
-    .app-pagination__list { justify-content: center; flex-wrap: wrap; }
-    .app-pagination__info { text-align: center; }
-}
-
-/* ============================================================
    9.6  UPLOADER (input file con preview)
    ============================================================ */
 .app-uploader {
@@ -723,5 +646,4 @@
     .admin-sidebar, .admin-topbar { display: none !important; }
     .admin { grid-template-columns: 1fr; grid-template-areas: "content"; }
     .admin-content { padding: 0; }
-    .app-pagination { display: none !important; }
 }
