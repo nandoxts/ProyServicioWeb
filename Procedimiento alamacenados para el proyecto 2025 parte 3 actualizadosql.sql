@@ -1,9 +1,10 @@
 USE proyectodiciembre2025
+GO
 --------------------------------------------------------------------------------
--- 1. REPORTES Y ESTADÍSTICAS
+-- 1. REPORTES Y ESTADISTICAS
 --------------------------------------------------------------------------------
 
--- Resumen de Ventas Agrupadas por Mes y Año
+-- Resumen de Ventas Agrupadas por Mes y A o
 CREATE OR ALTER PROCEDURE ssp_ResumenVentasPorMes
     @StartDate DATETIME,
     @EndDate DATETIME
@@ -64,7 +65,7 @@ GO
 
 
 --------------------------------------------------------------------------------
--- 2. CATÁLOGO: ROL (CRUD Básico)
+-- 2. CAT LOGO: ROL (CRUD B sico)
 --------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE ssp_Rol_Listar
 AS
@@ -109,7 +110,7 @@ GO
 
 
 --------------------------------------------------------------------------------
--- 3. CATÁLOGO: CATEGORÍA (CRUD Básico)
+-- 3. CAT LOGO: CATEGOR A (CRUD B sico)
 --------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE ssp_Categoria_Listar
 AS
@@ -154,7 +155,7 @@ BEGIN
 END;
 GO
 --------------------------------------------------------------------------------
--- 4. CATÁLOGO: MARCA (CRUD Básico)
+-- 4. CAT LOGO: MARCA (CRUD B sico)
 --------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE ssp_Marca_Listar
 AS
@@ -202,7 +203,7 @@ GO
 
 
 --------------------------------------------------------------------------------
--- 5. ADMINISTRACIÓN: USUARIO (CRUD + Seguridad)
+-- 5. ADMINISTRACI N: USUARIO (CRUD + Seguridad)
 --------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE ssp_Usuario_Listar
 AS
@@ -269,7 +270,7 @@ GO
 
 
 --------------------------------------------------------------------------------
--- 6. ADMINISTRACIÓN: CLIENTE (CRUD + Seguridad)
+-- 6. ADMINISTRACI N: CLIENTE (CRUD + Seguridad)
 --------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE ssp_Cliente_Listar
 AS
@@ -379,7 +380,7 @@ END;
 GO
 
 
--- Listar Productos (con Marcas y Categorías)
+-- Listar Productos (con Marcas y Categor as)
 CREATE OR ALTER PROCEDURE ssp_Producto_Listar
 AS
 BEGIN
@@ -395,18 +396,18 @@ END;
 GO
 
 
--- Listar Productos Filtrados por Categoría
+-- Listar Productos Filtrados por Categor a
 CREATE OR ALTER PROCEDURE ssp_Producto_ListarPorCategoria
 @IdCategoria INT
 AS
 BEGIN
-    SET NOCOUNT ON;
-    SELECT P.*, M.Descripcion AS NombreMarca, C.Descripcion AS NombreCategoria
-    FROM PRODUCTO P
+    SET NOCOUNT ON;
+    SELECT P.*, M.Descripcion AS NombreMarca, C.Descripcion AS NombreCategoria
+    FROM PRODUCTO P
 	LEFT JOIN CATEGORIA C ON P.IdCategoria = C.IdCategoria
-    LEFT JOIN MARCA M ON P.IdMarca = M.IdMarca
-    WHERE P.Activo = 1 AND P.IdCategoria = @IdCategoria
-    ORDER BY P.Nombre ASC;
+    LEFT JOIN MARCA M ON P.IdMarca = M.IdMarca
+    WHERE P.Activo = 1 AND P.IdCategoria = @IdCategoria
+    ORDER BY P.Nombre ASC;
 END;
 GO
 
@@ -415,13 +416,13 @@ CREATE OR ALTER PROCEDURE ssp_Producto_ListarPorMarca
 @IdMarca INT
 AS
 BEGIN
-    SET NOCOUNT ON;
-    SELECT P.*, M.Descripcion AS NombreMarca, C.Descripcion AS NombreCategoria
-    FROM PRODUCTO P
-    LEFT JOIN MARCA M ON P.IdMarca = M.IdMarca
-    LEFT JOIN CATEGORIA C ON P.IdCategoria = C.IdCategoria
-    WHERE P.Activo = 1 AND P.IdMarca = @IdMarca
-    ORDER BY P.Nombre ASC;
+    SET NOCOUNT ON;
+    SELECT P.*, M.Descripcion AS NombreMarca, C.Descripcion AS NombreCategoria
+    FROM PRODUCTO P
+    LEFT JOIN MARCA M ON P.IdMarca = M.IdMarca
+    LEFT JOIN CATEGORIA C ON P.IdCategoria = C.IdCategoria
+    WHERE P.Activo = 1 AND P.IdMarca = @IdMarca
+    ORDER BY P.Nombre ASC;
 END;
 GO
 
@@ -429,13 +430,13 @@ GO
 CREATE OR ALTER PROCEDURE ssp_Producto_ListarAgrupado
 AS
 BEGIN
-    SET NOCOUNT ON;
-    SELECT C.Descripcion AS Categoria, P.IdProducto, P.Nombre, P.Precio, P.Stock, M.Descripcion AS Marca
-    FROM PRODUCTO P
+    SET NOCOUNT ON;
+    SELECT C.Descripcion AS Categoria, P.IdProducto, P.Nombre, P.Precio, P.Stock, M.Descripcion AS Marca
+    FROM PRODUCTO P
 	LEFT JOIN CATEGORIA C ON P.IdCategoria = C.IdCategoria
-    LEFT JOIN MARCA M ON P.IdMarca = M.IdMarca
-    WHERE P.Activo = 1
-    ORDER BY C.Descripcion, P.Nombre;
+    LEFT JOIN MARCA M ON P.IdMarca = M.IdMarca
+    WHERE P.Activo = 1
+    ORDER BY C.Descripcion, P.Nombre;
 END;
 GO
 
@@ -455,7 +456,7 @@ END;
 GO
 
 
--- Eliminación Lógica (Activo = 0)
+-- Eliminaci n L gica (Activo = 0)
 CREATE OR ALTER PROCEDURE ssp_Producto_Eliminar
 @IdProducto INT
 AS
@@ -465,12 +466,12 @@ END;
 GO
 
 
--- Eliminación Física (Precaución: solo para desarrollo)
+-- Eliminaci n F sica (Precauci n: solo para desarrollo)
 CREATE OR ALTER PROCEDURE ssp_Producto_EliminarFisico
-    @IdProducto INT
+    @IdProducto INT
 AS
 BEGIN
-    DELETE FROM PRODUCTO WHERE IdProducto = @IdProducto;
+    DELETE FROM PRODUCTO WHERE IdProducto = @IdProducto;
 END;
 GO
 
@@ -478,7 +479,7 @@ GO
 -- 8. TRANSACCIONES Y SEGURIDAD (Login, Venta, Clave)
 --------------------------------------------------------------------------------
 
--- Registro de Venta (Usa TVP dbo.DetalleVentaType y Transacción)
+-- Registro de Venta (Usa TVP dbo.DetalleVentaType y Transacci n)
 CREATE OR ALTER PROCEDURE ssp_RegistrarVenta
 (
     @IdCliente INT,
@@ -496,7 +497,7 @@ BEGIN
 
     IF NOT EXISTS (SELECT 1 FROM CLIENTE WHERE IdCliente = @IdCliente AND Activo = 1)
     BEGIN
-        RAISERROR('Cliente inválido', 16, 1);
+        RAISERROR('Cliente inv lido', 16, 1);
         RETURN;
     END
 
@@ -556,9 +557,9 @@ CREATE OR ALTER PROCEDURE ssp_Usuario_Validar
 @PasswordHash VARCHAR(512)
 AS
 BEGIN
-    SELECT *
-    FROM USUARIO
-    WHERE Correo = @Correo AND PasswordHash = @PasswordHash AND Activo = 1;
+    SELECT *
+    FROM USUARIO
+    WHERE Correo = @Correo AND PasswordHash = @PasswordHash AND Activo = 1;
 END;
 GO
 
@@ -568,22 +569,22 @@ CREATE OR ALTER PROCEDURE ssp_Cliente_Validar
 @PasswordHash VARCHAR(512)
 AS
 BEGIN
-    SELECT *
-    FROM CLIENTE
-    WHERE Correo = @Correo AND PasswordHash = @PasswordHash AND Activo = 1;
+    SELECT *
+    FROM CLIENTE
+    WHERE Correo = @Correo AND PasswordHash = @PasswordHash AND Activo = 1;
 END;
 GO
 
--- Reestablecer Clave de Usuario (tras cambio de contraseña)
+-- Reestablecer Clave de Usuario (tras cambio de contrase a)
 CREATE OR ALTER PROCEDURE ssp_Usuario_ReestablecerClave
 @IdUsuario INT,
 @PasswordHash VARCHAR(512)
 AS
 BEGIN
-    UPDATE USUARIO SET
-        PasswordHash = @PasswordHash,
-        Reestablecer = 0
-    WHERE IdUsuario = @IdUsuario;
+    UPDATE USUARIO SET
+        PasswordHash = @PasswordHash,
+        Reestablecer = 0
+    WHERE IdUsuario = @IdUsuario;
 END;
 GO
 

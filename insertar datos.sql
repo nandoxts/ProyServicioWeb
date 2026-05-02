@@ -105,7 +105,7 @@ INSERT INTO Estado_Pedido (IdEstadoPedido, Descripcion)
 VALUES
 (1, 'Registrado'),
 (2, 'Pagado'),
-(3, 'En preparación'),
+(3, 'En preparacion'),
 (4, 'Enviado'),
 (5, 'Entregado'),
 (6, 'Cancelado');
@@ -159,7 +159,7 @@ VALUES ('Demora', 'Pedido no llega', @Cliente1, 'Abierto');
 SET @Ticket = SCOPE_IDENTITY();
 
 INSERT INTO TICKET_LOG (IdTicket, Accion, Comentario)
-VALUES (@Ticket, 'Creado', 'Cliente abrió ticket');
+VALUES (@Ticket, 'Creado', 'Cliente abrio ticket');
 
 select * from NOTIFICACION
 go

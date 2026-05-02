@@ -97,7 +97,7 @@ GO
 
 --------------------------------------------------------------------------------
 -- CLIENTES (compradores)
--- También usan PasswordHash en vez de Clave
+-- Tambi n usan PasswordHash en vez de Clave
 --------------------------------------------------------------------------------
 CREATE TABLE CLIENTE (
     IdCliente INT PRIMARY KEY IDENTITY,
@@ -135,7 +135,7 @@ CREATE TABLE PRODUCTO (
 );
 GO
 
--- Imágenes múltiples por producto
+-- Im genes m ltiples por producto
 CREATE TABLE PRODUCTO_IMAGEN (
     IdImagen INT IDENTITY(1,1) PRIMARY KEY,
     IdProducto INT NOT NULL REFERENCES PRODUCTO(IdProducto),
@@ -147,7 +147,7 @@ CREATE TABLE PRODUCTO_IMAGEN (
 GO
 
 --------------------------------------------------------------------------------
--- LISTA DESEOS (artículos guardados por el cliente)
+-- LISTA DESEOS (art culos guardados por el cliente)
 --------------------------------------------------------------------------------
 CREATE TABLE LISTA_DESEOS (
     IdListaDeseos INT PRIMARY KEY IDENTITY,
@@ -171,7 +171,7 @@ CREATE TABLE VENTA (
     Direccion VARCHAR(500) NULL,
     IdTransaccion VARCHAR(50) NULL,
     FechaVenta DATETIME DEFAULT GETDATE(),
-    -- Quién procesó la venta (empleado) - nullable
+    -- Qui n proces  la venta (empleado) - nullable
     IdUsuarioEmpleado INT NULL REFERENCES USUARIO(IdUsuario)
 );
 GO
@@ -195,7 +195,7 @@ CREATE TABLE TICKET (
     IdClienteOrigen INT NULL REFERENCES CLIENTE(IdCliente), -- Origen: Cliente
     IdUsuarioOrigen INT NULL REFERENCES USUARIO(IdUsuario), -- Origen: Empleado/Admin
     Estado VARCHAR(20) DEFAULT 'Abierto', -- Abierto, Cerrado, Rechazado
-    IdUsuarioGestion INT NULL REFERENCES USUARIO(IdUsuario), -- Quién lo gestiona (Admin)
+    IdUsuarioGestion INT NULL REFERENCES USUARIO(IdUsuario), -- Qui n lo gestiona (Admin)
     RespuestaAdmin TEXT,
     FechaCreacion DATETIME DEFAULT GETDATE(),
     FechaCierre DATETIME NULL
@@ -205,7 +205,7 @@ GO
 CREATE TABLE TICKET_LOG(
     IdTicketLog INT IDENTITY(1,1) PRIMARY KEY,
     IdTicket INT NOT NULL REFERENCES TICKET(IdTicket),
-    IdUsuario INT NULL, -- quién hizo la acción
+    IdUsuario INT NULL, -- qui n hizo la acci n
     Accion VARCHAR(100), -- 'Asignado','Respondido','Cerrado','Rechazado'
     Comentario VARCHAR(MAX),
     Fecha DATETIME DEFAULT GETDATE()
@@ -245,7 +245,7 @@ CREATE TABLE PAGO(
 GO
 
 --------------------------------------------------------------------------------
--- NOTIFICACIONES y ACTIVITY LOG (auditoría)
+-- NOTIFICACIONES y ACTIVITY LOG (auditor a)
 --------------------------------------------------------------------------------
 CREATE TABLE NOTIFICACION(
     IdNotificacion INT IDENTITY(1,1) PRIMARY KEY,
@@ -279,11 +279,11 @@ GO
 --------------------------------------------------------------------------------
 -- SISTEMA DE CARRITO MODERNO: CARTS + CART_ITEMS (REEMPLAZA CARRITO ANTIGUO)
 -- NOTA: si ejecutas este script en una BD que tuviera la tabla CARRITO, abajo incluyo
---       la migración de datos desde CARRITO a CARTS/CART_ITEMS y DROP TABLE CARRITO.
+--       la migraci n de datos desde CARRITO a CARTS/CART_ITEMS y DROP TABLE CARRITO.
 --------------------------------------------------------------------------------
 CREATE TABLE CARTS(
     CartId INT IDENTITY(1,1) PRIMARY KEY,
-    IdCliente INT NULL REFERENCES CLIENTE(IdCliente), -- NULL = carrito anónimo
+    IdCliente INT NULL REFERENCES CLIENTE(IdCliente), -- NULL = carrito an nimo
     Status VARCHAR(20) DEFAULT 'Active', -- Active, Saved, Ordered
     CreatedAt DATETIME DEFAULT GETDATE()
 );
@@ -325,8 +325,8 @@ GO
 --------------------------------------------------------------------------------
 -- MIGRACION desde tabla CARRITO ANTIGUA (si existiera)
 -- Si ejecutas este script sobre una BD donde existe la tabla CARRITO,
--- descomenta las secciones de migración. En tu caso original, el script
--- recrea la BD así que no hay datos previos; incluyo las instrucciones de migración
+-- descomenta las secciones de migraci n. En tu caso original, el script
+-- recrea la BD as  que no hay datos previos; incluyo las instrucciones de migraci n
 -- por si alguna vez las necesitas.
 --------------------------------------------------------------------------------
 /*
@@ -349,7 +349,7 @@ JOIN c ON c.IdCliente = car.IdCliente
 LEFT JOIN PRODUCTO p ON p.IdProducto = car.IdProducto;
 GO
 
--- Paso C: eliminar tabla CARRITO (solo después de verificar la migración)
+-- Paso C: eliminar tabla CARRITO (solo despu s de verificar la migraci n)
 DROP TABLE CARRITO;
 GO
 */
@@ -382,7 +382,7 @@ INSERT INTO Estado_Pedido (IdEstadoPedido, Descripcion)
 VALUES
 (1, 'Registrado'),
 (2, 'Pagado'),
-(3, 'En preparación'),
+(3, 'En preparacion'),
 (4, 'Enviado'),
 (5, 'Entregado'),
 (6, 'Cancelado');
