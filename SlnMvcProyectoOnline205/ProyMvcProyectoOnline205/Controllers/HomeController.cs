@@ -25,7 +25,7 @@ namespace ProyMvcProyectoOnline205.Controllers
             _http = httpClientFactory;
             _config = config;
         }
-        public async Task<IActionResult> Index(int? idCategoria, int? idMarca, string? q)
+        public async Task<IActionResult> Index(int? idCategoria, int? idMarca, string? q, int page = 1, int pageSize = 12)
         {
             // Staff (admin/vendedor) NO tiene nada que hacer en el catálogo público.
             var rol = HttpContext.Session.GetInt32("IdRol");
@@ -83,7 +83,11 @@ namespace ProyMvcProyectoOnline205.Controllers
                 productos = await client.GetFromJsonAsync<List<Producto>>(url) ?? new();
             }
 
-            return View(productos);
+            // Paginacion en memoria: la API devuelve todo, aqui recortamos
+            // a la pagina actual antes de mandarla a la vista. Asi el render
+            // del catalogo solo dibuja "pageSize" cards en vez de cientos.
+            var paged = PagedList<Producto>.Create(productos, page, pageSize);
+            return View(paged);
         }
 
     }

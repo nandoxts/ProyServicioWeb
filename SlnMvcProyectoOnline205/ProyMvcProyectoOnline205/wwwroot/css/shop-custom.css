@@ -554,3 +554,18 @@ body {
     .filter-sidebar { position: static; margin-bottom: 1.5rem; }
     .product-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
 }
+
+
+/* ── PAGINACION DEL CATALOGO ────────────────────────────── */
+.shop-pagination {
+    margin-top: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.shop-pagination .app-pagination {
+    border-top: none;
+    background: transparent;
+}

@@ -1,4 +1,4 @@
-@model IEnumerable<ProyMvcProyectoOnline205.Models.Producto>
+@model ProyMvcProyectoOnline205.Models.PagedList<ProyMvcProyectoOnline205.Models.Producto>
 @using ProyMvcProyectoOnline205.Models
 
 @{
@@ -17,7 +17,7 @@
         ? Context.Request.Query["q"].ToString()
         : "";
 
-    int totalProductos = Model.Count();
+    int totalProductos = Model.TotalItems;
 
     string categoriaLabel = "Todos los productos";
     if (categoriaSeleccionada != null && ViewBag.Categorias != null)
@@ -141,7 +141,7 @@
                 }
             </div>
 
-            @if (!Model.Any())
+            @if (!Model.Items.Any())
             {
                 <div class="empty-state">
                     <svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" fill="currentColor" viewBox="0 0 16 16">
@@ -157,7 +157,7 @@
             else
             {
                 <div class="product-grid">
-                    @foreach (var p in Model)
+                    @foreach (var p in Model.Items)
                     {
                         <div class="product-card">
 
@@ -208,6 +208,15 @@
 
                         </div>
                     }
+                </div>
+
+                <div class="shop-pagination">
+                    <partial name="Components/_Pagination" model='new {
+                        page       = Model.PageNumber,
+                        totalPages = Model.TotalPages,
+                        totalItems = Model.TotalItems,
+                        pageSize   = Model.PageSize
+                    }' />
                 </div>
             }
 
