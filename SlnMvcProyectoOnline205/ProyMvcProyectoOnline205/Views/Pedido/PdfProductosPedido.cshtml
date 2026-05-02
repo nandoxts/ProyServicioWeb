@@ -1,50 +1,136 @@
-﻿@model ProyMvcProyectoOnline205.Models.Ventum
+@model ProyMvcProyectoOnline205.Models.Ventum
+@{
+    Layout = null;
+    var fecha    = Model.FechaVenta?.ToString("dd/MM/yyyy HH:mm") ?? "-";
+    var total    = (Model.MontoTotal ?? 0m).ToString("N2");
+    var unidades = Model.DetalleVenta?.Sum(d => d.Cantidad) ?? 0;
+    var lineas   = Model.DetalleVenta?.Count ?? 0;
+}
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
+    <title>Productos del Pedido @Model.IdVenta</title>
     <style>
+        * { box-sizing: border-box; }
+        @@page { size: A4; margin: 14mm; }
+
         body {
-            font-family: Arial;
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
             font-size: 12px;
+            color: #1f2937;
+            margin: 0;
         }
 
-        table {
+        .ticket { border: 1px solid #d1d5db; border-radius: 10px; padding: 16px; }
+
+        .header {
+            display: table; width: 100%;
+            margin-bottom: 14px;
+            border-bottom: 2px solid #111827;
+            padding-bottom: 10px;
+        }
+        .header-left, .header-right { display: table-cell; vertical-align: middle; width: 50%; }
+        .header-right { text-align: right; }
+        .brand       { font-size: 17px; font-weight: 700; color: #111827; }
+        .muted       { color: #6b7280; font-size: 11px; }
+        .order-title { font-size: 19px; font-weight: 700; color: #111827; margin: 2px 0; }
+
+        .meta {
             width: 100%;
-            border-collapse: collapse;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+            padding: 10px 12px;
+            margin-bottom: 14px;
         }
+        .meta-row  { display: table; width: 100%; }
+        .meta-item { display: table-cell; width: 33%; vertical-align: top; }
+        .meta-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+        .meta-value { font-size: 13px; font-weight: 600; color: #111827; }
 
-        th, td {
-            border: 1px solid #000;
-            padding: 6px;
-        }
-
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { border: 1px solid #d1d5db; padding: 8px; vertical-align: middle; }
         th {
-            background-color: #ddd;
+            background-color: #f3f4f6;
+            color: #111827;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            text-align: left;
+        }
+        td.center, th.center { text-align: center; }
+
+        .footer {
+            margin-top: 14px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 11px;
         }
     </style>
 </head>
 <body>
+    <div class="ticket">
+        <div class="header">
+            <div class="header-left">
+                <div class="brand">NexusShop</div>
+                <div class="muted">Listado de productos</div>
+            </div>
+            <div class="header-right">
+                <div class="order-title">Pedido #@Model.IdVenta</div>
+                <div class="muted">Generado: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+        </div>
 
-    <h3>Productos del Pedido #@Model.IdVenta</h3>
+        <div class="meta">
+            <div class="meta-row">
+                <div class="meta-item">
+                    <div class="meta-label">Fecha del pedido</div>
+                    <div class="meta-value">@fecha</div>
+                </div>
+                <div class="meta-item" style="text-align:center;">
+                    <div class="meta-label">Productos distintos</div>
+                    <div class="meta-value">@lineas</div>
+                </div>
+                <div class="meta-item" style="text-align:right;">
+                    <div class="meta-label">Unidades totales</div>
+                    <div class="meta-value">@unidades</div>
+                </div>
+            </div>
+        </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Cantidad</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var d in Model.DetalleVenta)
-            {
+        <table>
+            <thead>
                 <tr>
-                    <td>@d.IdProductoNavigation?.Nombre</td>
-                    <td>@d.Cantidad</td>
+                    <th style="width:40px;" class="center">#</th>
+                    <th>Producto</th>
+                    <th class="center" style="width:80px;">Cantidad</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @if (Model.DetalleVenta == null || !Model.DetalleVenta.Any())
+                {
+                    <tr><td colspan="3" style="text-align:center;color:#6b7280;">No hay productos en este pedido.</td></tr>
+                }
+                else
+                {
+                    var idx = 1;
+                    foreach (var d in Model.DetalleVenta)
+                    {
+                        <tr>
+                            <td class="center" style="color:#6b7280;">@idx</td>
+                            <td style="font-weight:600;">@(d.IdProductoNavigation?.Nombre ?? "-")</td>
+                            <td class="center">@d.Cantidad</td>
+                        </tr>
+                        idx++;
+                    }
+                }
+            </tbody>
+        </table>
 
+        <div class="footer">
+            NexusShop · Documento generado automáticamente
+        </div>
+    </div>
 </body>
 </html>

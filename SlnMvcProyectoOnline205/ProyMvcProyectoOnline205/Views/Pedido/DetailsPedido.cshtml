@@ -42,6 +42,35 @@
     <partial name="Admin/_PageHeader" />
 }
 
+<style>
+    /* Thumbnail de producto en tablas de pedidos */
+    .prod-thumb {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: var(--app-surface-2);
+        border: 1px solid var(--app-border);
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+    }
+    .prod-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .prod-thumb__fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--app-brand-accent);
+        background: linear-gradient(135deg, var(--app-surface-2) 0%, rgba(99,102,241,.08) 100%);
+    }
+</style>
+
 <div class="@(esAdmin ? "" : "container py-4")">
 
     @if (!esAdmin)
@@ -218,15 +247,40 @@
                             <tbody>
                             @foreach (var d in Model.DetalleVenta)
                             {
-                                var precio   = d.IdProductoNavigation?.Precio ?? 0;
+                                var prod     = d.IdProductoNavigation;
+                                var precio   = prod?.Precio ?? 0;
                                 var subtotal = d.Cantidad * precio;
-                                var nombre   = d.IdProductoNavigation?.Nombre ?? "—";
-                                var inicial  = string.IsNullOrWhiteSpace(nombre) ? "?" : nombre.Trim()[0].ToString().ToUpper();
+                                var nombre   = prod?.Nombre ?? "—";
+                                var marca    = prod?.IdMarcaNavigation?.Descripcion;
+                                var imgSrc   = (!string.IsNullOrEmpty(prod?.RutaImagen) && !string.IsNullOrEmpty(prod?.NombreImagen))
+                                                ? $"/{prod.RutaImagen}{prod.NombreImagen}".Replace("//","/")
+                                                : null;
                                 <tr>
                                     <td>
-                                        <div style="display:flex;align-items:center;gap:.7rem">
-                                            <span style="width:36px;height:36px;border-radius:8px;background:var(--app-surface-2);color:var(--app-brand-accent);display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">@inicial</span>
-                                            <span style="font-weight:600;color:var(--app-text)">@nombre</span>
+                                        <div style="display:flex;align-items:center;gap:.75rem">
+                                            <div class="prod-thumb">
+                                                @if (imgSrc != null)
+                                                {
+                                                    <img src="@imgSrc" alt="@nombre"
+                                                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                                                    <span class="prod-thumb__fallback" style="display:none">
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8 12 13 3 8"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="prod-thumb__fallback">
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8 12 13 3 8"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+                                                    </span>
+                                                }
+                                            </div>
+                                            <div style="min-width:0">
+                                                <div style="font-weight:600;color:var(--app-text)">@nombre</div>
+                                                @if (!string.IsNullOrEmpty(marca))
+                                                {
+                                                    <div class="u-text-muted" style="font-size:.75rem">@marca</div>
+                                                }
+                                            </div>
                                         </div>
                                     </td>
                                     <td style="text-align:center">
