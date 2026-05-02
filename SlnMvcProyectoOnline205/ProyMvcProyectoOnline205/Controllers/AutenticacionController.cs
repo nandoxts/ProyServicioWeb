@@ -115,23 +115,72 @@ namespace ProyMvcProyectoOnline205.Controllers
         [RequireAnonymous]
         public async Task<IActionResult> Registro(Cliente obj)
         {
-            using var http = _httpClientFactory.CreateClient();
+            // 1) Validaciones basicas server-side (no confiar solo en HTML required)
+            if (string.IsNullOrWhiteSpace(obj.Nombre))
+            {
+                ViewBag.Error = "El nombre es obligatorio.";
+                return View(obj);
+            }
+            if (string.IsNullOrWhiteSpace(obj.Apellidos))
+            {
+                ViewBag.Error = "Los apellidos son obligatorios.";
+                return View(obj);
+            }
+            if (string.IsNullOrWhiteSpace(obj.Correo))
+            {
+                ViewBag.Error = "El correo es obligatorio.";
+                return View(obj);
+            }
+            if (string.IsNullOrWhiteSpace(obj.PasswordHash))
+            {
+                ViewBag.Error = "La contrasena es obligatoria.";
+                return View(obj);
+            }
+            if (obj.PasswordHash.Length < 6)
+            {
+                ViewBag.Error = "La contrasena debe tener al menos 6 caracteres.";
+                return View(obj);
+            }
+
+            // Normalizar correo antes de enviarlo
+            obj.Correo = obj.Correo.Trim().ToLowerInvariant();
 
             obj.Activo = true;
             obj.Reestablecer = false;
 
+            using var http = _httpClientFactory.CreateClient();
             var json = JsonConvert.SerializeObject(obj);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var resp = await http.PostAsync(_apiClienteUrl + "PostCliente", content);
-
-            if (resp.IsSuccessStatusCode)
+            HttpResponseMessage resp;
+            try
             {
-                return RedirectToAction("Login");
+                resp = await http.PostAsync(_apiClienteUrl + "PostCliente", content);
+            }
+            catch (Exception)
+            {
+                ViewBag.Error = "No se pudo conectar con el servidor. Intentalo de nuevo.";
+                return View(obj);
             }
 
-            ViewBag.Error = await resp.Content.ReadAsStringAsync();
-            return View(obj);
+            var body = (await resp.Content.ReadAsStringAsync())?.Trim() ?? "";
+            // El API a veces devuelve "ERROR: ..." con HTTP 200 cuando atrapa excepciones,
+            // por eso no basta con mirar IsSuccessStatusCode: tambien hay que leer el body.
+            bool falloLogico = body.StartsWith("ERROR", StringComparison.OrdinalIgnoreCase);
+
+            if (!resp.IsSuccessStatusCode || falloLogico)
+            {
+                // Limpia comillas dobles que añade JSON cuando el endpoint devuelve string
+                var limpio = body.Trim('"');
+                ViewBag.Error = string.IsNullOrEmpty(limpio)
+                    ? "No se pudo registrar el cliente."
+                    : limpio;
+                return View(obj);
+            }
+
+            // Exito: mensaje visible en el Login
+            TempData["RegistroOk"] = "Cuenta creada correctamente. Inicia sesion con tu correo y contrasena.";
+            return RedirectToAction("Login");
         }
 
         // =========================

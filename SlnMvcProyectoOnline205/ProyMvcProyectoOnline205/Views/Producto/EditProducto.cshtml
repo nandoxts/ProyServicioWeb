@@ -27,12 +27,10 @@
     <div class="app-card__header">Datos del producto · #@Model.IdProducto</div>
     <div class="app-card__body">
 
-        <form asp-action="EditProducto" method="post" novalidate>
+        <form asp-action="EditProducto" method="post" enctype="multipart/form-data" novalidate>
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="IdProducto" />
             <input type="hidden" asp-for="Activo" />
-            <input type="hidden" asp-for="RutaImagen" />
-            <input type="hidden" asp-for="NombreImagen" />
             <input type="hidden" asp-for="FechaRegistro" />
 
             <div asp-validation-summary="ModelOnly" class="text-danger app-form-help" style="margin-bottom:1rem"></div>
@@ -83,15 +81,36 @@
                     </select>
                 </div>
 
-                @if (!string.IsNullOrEmpty(Model.RutaImagen))
-                {
-                    <div class="col-md-12">
-                        <label class="app-form-label">Imagen actual</label>
-                        <div style="border:1px solid var(--app-border);border-radius:10px;padding:.5rem;display:inline-block">
-                            <img src="@Model.RutaImagen" alt="@Model.Nombre" style="max-height:120px;border-radius:6px" />
+                <div class="col-md-12 app-form-group">
+                    <label class="app-form-label">Imagen del producto <span class="text-muted" style="font-weight:400">(opcional · sube una nueva para reemplazar)</span></label>
+
+                    @if (!string.IsNullOrEmpty(Model.RutaImagen))
+                    {
+                        <div class="app-uploader__current">
+                            <span class="app-uploader__current-label">Actual:</span>
+                            <img src="@Model.RutaImagen" alt="@Model.Nombre" />
+                            <span class="u-text-muted" style="font-size:.78rem">@Model.NombreImagen</span>
                         </div>
+                    }
+
+                    <div class="app-uploader" id="uploaderEdit">
+                        <label class="app-uploader__drop" for="imagenArchivo">
+                            <div class="app-uploader__preview" id="previewEdit">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                <span class="app-uploader__hint">Click o arrastra una nueva imagen</span>
+                                <span class="app-uploader__filename" id="fileNameEdit"></span>
+                            </div>
+                            <input type="file" id="imagenArchivo" name="imagenArchivo" accept="image/*" class="app-uploader__input" />
+                        </label>
+                        <button type="button" class="app-btn app-btn--ghost app-uploader__clear" id="clearEdit" hidden>
+                            Cancelar nueva imagen
+                        </button>
                     </div>
-                }
+                </div>
 
             </div>
 
@@ -112,4 +131,45 @@
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script>
+        (function () {
+            var input    = document.getElementById('imagenArchivo');
+            var preview  = document.getElementById('previewEdit');
+            var fileName = document.getElementById('fileNameEdit');
+            var clearBtn = document.getElementById('clearEdit');
+            if (!input) return;
+
+            function reset() {
+                input.value = '';
+                preview.classList.remove('is-loaded');
+                preview.style.backgroundImage = '';
+                fileName.textContent = '';
+                clearBtn.hidden = true;
+            }
+
+            input.addEventListener('change', function () {
+                var f = input.files && input.files[0];
+                if (!f) { reset(); return; }
+                if (!f.type.startsWith('image/')) {
+                    alert('El archivo debe ser una imagen.');
+                    reset(); return;
+                }
+                if (f.size > 5 * 1024 * 1024) {
+                    alert('La imagen supera los 5 MB.');
+                    reset(); return;
+                }
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.style.backgroundImage = 'url(' + e.target.result + ')';
+                    preview.classList.add('is-loaded');
+                    fileName.textContent = f.name;
+                    clearBtn.hidden = false;
+                };
+                reader.readAsDataURL(f);
+            });
+
+            clearBtn.addEventListener('click', reset);
+        })();
+    </script>
 }

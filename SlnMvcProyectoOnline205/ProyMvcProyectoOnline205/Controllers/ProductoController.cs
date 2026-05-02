@@ -14,6 +14,65 @@ namespace ProyMvcProyectoOnline205.Controllers
         private readonly string apiCategoriaUrl = "http://localhost:5064/api/CategoriaApi/";
         private readonly string apiMarcaUrl     = "http://localhost:5064/api/MarcaApi/";
 
+        private readonly IWebHostEnvironment _env;
+        public ProductoController(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
+
+        // ============================
+        // GUARDAR IMAGEN SUBIDA EN wwwroot/uploads/productos
+        // Devuelve (rutaWeb, nombreArchivo) o (null, null) si no hay archivo o hay error.
+        // Lanza excepcion con mensaje amigable si el archivo es invalido.
+        // ============================
+        private async Task<(string? ruta, string? nombre)> GuardarImagenAsync(IFormFile? file)
+        {
+            if (file == null || file.Length == 0)
+                return (null, null);
+
+            // Validacion: solo imagenes
+            var permitidos = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!permitidos.Contains(ext))
+                throw new InvalidOperationException("Formato no permitido. Usa JPG, PNG, GIF o WEBP.");
+
+            // Validacion: maximo 5 MB
+            const long max = 5 * 1024 * 1024;
+            if (file.Length > max)
+                throw new InvalidOperationException("La imagen supera los 5 MB.");
+
+            // Carpeta destino: wwwroot/uploads/productos
+            var carpeta = Path.Combine(_env.WebRootPath, "uploads", "productos");
+            Directory.CreateDirectory(carpeta);
+
+            // Nombre unico: guid + extension (evita colisiones y caracteres raros)
+            var nombreArchivo = $"{Guid.NewGuid():N}{ext}";
+            var rutaFisica = Path.Combine(carpeta, nombreArchivo);
+
+            using (var fs = new FileStream(rutaFisica, FileMode.Create))
+            {
+                await file.CopyToAsync(fs);
+            }
+
+            // Ruta web (servida por StaticFiles)
+            var rutaWeb = $"/uploads/productos/{nombreArchivo}";
+            return (rutaWeb, nombreArchivo);
+        }
+
+        // Borra del disco una imagen previamente subida (solo si esta en /uploads/productos)
+        private void BorrarImagenSiAplica(string? rutaWeb)
+        {
+            if (string.IsNullOrWhiteSpace(rutaWeb)) return;
+            if (!rutaWeb.StartsWith("/uploads/productos/", StringComparison.OrdinalIgnoreCase)) return;
+            try
+            {
+                var rel = rutaWeb.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+                var ruta = Path.Combine(_env.WebRootPath, rel);
+                if (System.IO.File.Exists(ruta)) System.IO.File.Delete(ruta);
+            }
+            catch { /* silencioso: no bloquea el guardado del producto */ }
+        }
+
         // ============================
         // TRAER PRODUCTOS
         // ============================
@@ -91,8 +150,25 @@ namespace ProyMvcProyectoOnline205.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProducto(Producto obj)
+        public async Task<IActionResult> CreateProducto(Producto obj, IFormFile? imagenArchivo)
         {
+            // Subida de imagen (opcional)
+            try
+            {
+                var (ruta, nombre) = await GuardarImagenAsync(imagenArchivo);
+                if (ruta != null)
+                {
+                    obj.RutaImagen   = ruta;
+                    obj.NombreImagen = nombre;
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["mensaje"] = ex.Message;
+                await CargarDropdownsAsync();
+                return View(obj);
+            }
+
             using var http = new HttpClient();
             // Lógica de negocio: todo producto nuevo está activo
             obj.Activo = true;
@@ -122,7 +198,7 @@ namespace ProyMvcProyectoOnline205.Controllers
         // EDIT - POST (Corregido para evitar la desactivación)
         // ============================
         [HttpPost]
-        public async Task<IActionResult> EditProducto(Producto obj)
+        public async Task<IActionResult> EditProducto(Producto obj, IFormFile? imagenArchivo)
         {
             // 1. OBTENER EL PRODUCTO ORIGINAL DESDE EL API (Para mantener Activo, Rutas, etc.)
             Producto? original;
@@ -146,11 +222,32 @@ namespace ProyMvcProyectoOnline205.Controllers
                 return RedirectToAction(nameof(IndexProducto));
             }
 
-            // 2. PRESERVAR CAMPOS: Transferimos los valores de gestión (Activo, imágenes) 
-            //    del objeto original al objeto que vamos a enviar (obj).
+            // 2. PRESERVAR CAMPOS: Activo siempre del original.
+            //    Imagen: si subieron una nueva, reemplaza; si no, mantiene la actual.
             obj.Activo = original.Activo;
-            obj.RutaImagen = original.RutaImagen;
-            obj.NombreImagen = original.NombreImagen;
+
+            try
+            {
+                var (rutaNueva, nombreNuevo) = await GuardarImagenAsync(imagenArchivo);
+                if (rutaNueva != null)
+                {
+                    // Reemplaza la imagen anterior y borra la antigua si era subida local
+                    BorrarImagenSiAplica(original.RutaImagen);
+                    obj.RutaImagen   = rutaNueva;
+                    obj.NombreImagen = nombreNuevo;
+                }
+                else
+                {
+                    obj.RutaImagen   = original.RutaImagen;
+                    obj.NombreImagen = original.NombreImagen;
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["mensaje"] = ex.Message;
+                await CargarDropdownsAsync();
+                return View(obj);
+            }
 
             // 3. ENVIAR EL OBJETO COMPLETO Y CORREGIDO AL PUT
             using (var http = new HttpClient())

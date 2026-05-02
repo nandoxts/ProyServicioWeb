@@ -616,6 +616,107 @@
 }
 
 /* ============================================================
+   9.6  UPLOADER (input file con preview)
+   ============================================================ */
+.app-uploader {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+.app-uploader__current {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .5rem .75rem;
+    border: 1px solid var(--app-border);
+    border-radius: 10px;
+    background: var(--app-surface-alt);
+    margin-bottom: .25rem;
+}
+.app-uploader__current img {
+    max-height: 60px;
+    max-width: 90px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid var(--app-border);
+}
+.app-uploader__current-label {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--app-text-muted);
+    font-weight: 700;
+}
+.app-uploader__drop {
+    display: block;
+    cursor: pointer;
+    border: 2px dashed var(--app-border);
+    border-radius: 12px;
+    background: var(--app-surface-alt);
+    transition: border-color .15s ease, background .15s ease;
+}
+.app-uploader__drop:hover {
+    border-color: var(--app-brand-accent2);
+    background: var(--admin-surface);
+}
+.app-uploader__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+.app-uploader__preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    min-height: 160px;
+    padding: 1rem;
+    color: var(--app-text-muted);
+    text-align: center;
+    border-radius: 10px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: min-height .2s ease;
+}
+.app-uploader__preview.is-loaded {
+    min-height: 220px;
+    color: transparent;
+}
+.app-uploader__preview.is-loaded svg,
+.app-uploader__preview.is-loaded .app-uploader__hint {
+    display: none;
+}
+.app-uploader__hint {
+    font-size: .82rem;
+    font-weight: 500;
+}
+.app-uploader__filename {
+    font-size: .75rem;
+    color: var(--app-text);
+    font-weight: 600;
+    background: rgba(255,255,255,.85);
+    padding: .15rem .5rem;
+    border-radius: 4px;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.app-uploader__preview.is-loaded .app-uploader__filename {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+}
+.app-uploader__clear {
+    align-self: flex-start;
+}
+
+/* ============================================================
    10. PRINT
    ============================================================ */
 @media print {

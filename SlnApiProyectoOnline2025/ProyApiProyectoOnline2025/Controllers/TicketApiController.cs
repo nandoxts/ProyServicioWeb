@@ -77,24 +77,14 @@ namespace ProyApiProyectoOnline2025.Controllers
             if (ticket == null)
                 return NotFound("Ticket no encontrado.");
 
-            // ✅ VALIDAR USUARIO QUE RESPONDE
+            // VALIDAR USUARIO (staff) QUE RESPONDE
             var usuarioExistente = await db.Usuarios
                 .FirstOrDefaultAsync(u => u.IdUsuario == req.IdUsuarioGestion && u.Activo == true);
 
             if (usuarioExistente == null)
                 return BadRequest("El usuario que responde no existe o está inactivo.");
-            // 🔔 Crear notificación al cliente
-            if (ticket.IdClienteOrigen != null)
-            {
-                await db.Database.ExecuteSqlRawAsync(
-                    "EXEC ssp_Notificacion_Insertar @IdUsuario={0}, @Mensaje={1}",
-                    ticket.IdClienteOrigen,
-                    "Tu ticket ha sido respondido. Revisa tu bandeja de tickets."
-                );
-            }
 
-
-            // ✅ RESPUESTA DEL ADMIN
+            // RESPUESTA DEL ADMIN
             ticket.IdUsuarioGestion = req.IdUsuarioGestion;
             ticket.RespuestaAdmin = req.Respuesta;
             ticket.Estado = "Respondido";
@@ -107,6 +97,30 @@ namespace ProyApiProyectoOnline2025.Controllers
                 "Respuesta",
                 req.Respuesta
             );
+
+            // Notificacion al CLIENTE (tabla NOTIFICACION_CLIENTE).
+            // OJO: el SP ssp_Notificacion_Insertar es para tabla USUARIO (staff).
+            // Aqui el destinatario es un Cliente, asi que insertamos directo via EF.
+            // Se hace despues del SaveChanges del ticket y dentro de un try
+            // para que un fallo de notificacion no rompa la respuesta del ticket.
+            if (ticket.IdClienteOrigen != null)
+            {
+                try
+                {
+                    db.NotificacionClientes.Add(new NotificacionCliente
+                    {
+                        IdCliente     = ticket.IdClienteOrigen.Value,
+                        Mensaje       = "Tu ticket ha sido respondido. Revisa tu bandeja de tickets.",
+                        EsLeido       = false,
+                        FechaCreacion = DateTime.Now
+                    });
+                    await db.SaveChangesAsync();
+                }
+                catch
+                {
+                    // Notificacion es side-effect: si falla no debe revertir la respuesta.
+                }
+            }
 
             return Ok("Respuesta registrada exitosamente.");
         }
