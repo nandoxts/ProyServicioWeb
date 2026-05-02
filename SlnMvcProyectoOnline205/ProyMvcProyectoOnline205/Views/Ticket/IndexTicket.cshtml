@@ -58,8 +58,6 @@
    ════════════════════════════════════════════════════════════ *@
 @if (esAdmin)
 {
-    <partial name="Components/_FlashMessage" />
-
     <div class="admin-table-wrap">
         <div class="admin-table-toolbar">
             <div class="admin-table-toolbar__search">
@@ -172,8 +170,6 @@ else
                 Nuevo ticket
             </a>
         </div>
-
-        <partial name="Components/_FlashMessage" />
 
         @if (!Model.Any())
         {

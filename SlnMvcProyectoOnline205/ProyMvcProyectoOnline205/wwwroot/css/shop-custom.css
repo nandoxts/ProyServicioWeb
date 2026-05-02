@@ -391,19 +391,22 @@ body {
 }
 
 .product-card-img-wrap {
+    position: relative;
     background: var(--surface-alt);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     height: 200px;
     overflow: hidden;
     border-bottom: 1px solid var(--border);
 }
 .product-card-img-wrap img {
-    max-height: 170px;
-    max-width: 100%;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
     transition: transform .3s ease;
+}
+.product-card-img-wrap .product-card-img-fallback {
+    width: 100%;
+    height: 100%;
 }
 .product-card:hover .product-card-img-wrap img { transform: scale(1.05); }
 
@@ -411,6 +414,7 @@ body {
     position: absolute;
     top: .75rem;
     left: .75rem;
+    z-index: 3;
     background: var(--brand-accent);
     color: #fff;
     font-size: .7rem;
@@ -419,6 +423,7 @@ body {
     padding: .2em .65em;
     border-radius: var(--radius-pill);
     text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(15,23,42,.18);
 }
 
 .product-card-body {
